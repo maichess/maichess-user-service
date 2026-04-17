@@ -119,8 +119,17 @@ dotnet_diagnostic.CA1062.severity = none
 # CA1303: Do not pass literals as localized parameters — not a localized app
 dotnet_diagnostic.CA1303.severity = none
 
+# CA1812: Internal class never instantiated — false positive for DI-registered types
+dotnet_diagnostic.CA1812.severity = none
+
 # CA1848: Use LoggerMessage delegates — too strict for a small service
 dotnet_diagnostic.CA1848.severity = suggestion
+
+# CA2007: ConfigureAwait — no-op in ASP.NET Core (no SynchronizationContext)
+dotnet_diagnostic.CA2007.severity = none
+
+# CA5404: ValidateIssuer/ValidateAudience false — intentional: internal service, no multi-tenant concerns
+dotnet_diagnostic.CA5404.severity = none
 
 # --------------------------------------------------------------------------
 # StyleCop rule overrides
@@ -146,3 +155,8 @@ indent_size = 2
 
 [*.{json,yaml,yml}]
 indent_size = 2
+
+# EF Core generates migration files — exclude from all linting
+[Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
