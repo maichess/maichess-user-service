@@ -13,38 +13,40 @@ internal static class UsersEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("/users").RequireAuthorization();
 
-        group.MapGet("/{id:guid}", GetUser);
-        group.MapPatch("/{id:guid}", PatchUser);
+        group.MapGet("/me", GetMe);
+        group.MapPatch("/me", PatchMe);
 
         return routes;
     }
 
-    private static async Task<IResult> GetUser(
-        Guid id,
+    private static async Task<IResult> GetMe(
+        ClaimsPrincipal principal,
         UserDbContext db,
         CancellationToken ct)
     {
+        if (!TryGetUserId(principal, out Guid userId))
+        {
+            return Results.Unauthorized();
+        }
+
         User? user = await db.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id, ct);
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
         return user is null
             ? Results.NotFound()
             : Results.Ok(MapToResponse(user));
     }
 
-    private static async Task<IResult> PatchUser(
-        Guid id,
+    private static async Task<IResult> PatchMe(
         [FromBody] PatchUserRequest body,
         ClaimsPrincipal principal,
         UserDbContext db,
         CancellationToken ct)
     {
-        string? tokenUserId = principal.FindFirstValue("user_id");
-
-        if (tokenUserId is null || !string.Equals(tokenUserId, id.ToString(), StringComparison.OrdinalIgnoreCase))
+        if (!TryGetUserId(principal, out Guid userId))
         {
-            return Results.Forbid();
+            return Results.Unauthorized();
         }
 
         if (body.Username is null)
@@ -57,7 +59,7 @@ internal static class UsersEndpoints
             return Results.UnprocessableEntity(new { error = "username must not be empty" });
         }
 
-        User? user = await db.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
+        User? user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
 
         if (user is null)
         {
@@ -78,6 +80,12 @@ internal static class UsersEndpoints
         }
 
         return Results.Ok(MapToResponse(user));
+    }
+
+    private static bool TryGetUserId(ClaimsPrincipal principal, out Guid userId)
+    {
+        string? value = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        return Guid.TryParse(value, out userId);
     }
 
     private static UserResponse MapToResponse(User user) =>
