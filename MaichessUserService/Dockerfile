@@ -2,11 +2,12 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 WORKDIR /src
 
+ARG GITHUB_USER
+
 COPY nuget.config ./
 COPY MaichessUserService/MaichessUserService.csproj MaichessUserService/
 RUN --mount=type=secret,id=GITHUB_TOKEN \
     GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) \
-    GITHUB_ACTOR=maichess \
     dotnet restore MaichessUserService/MaichessUserService.csproj
 
 COPY MaichessUserService/ MaichessUserService/
