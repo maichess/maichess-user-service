@@ -1,17 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
-ARG GITHUB_TOKEN
-ARG GITHUB_ACTOR=maichess
-
 WORKDIR /src
-
-# NuGet reads %GITHUB_TOKEN% / %GITHUB_ACTOR% from the environment
-ENV GITHUB_TOKEN=${GITHUB_TOKEN}
-ENV GITHUB_ACTOR=${GITHUB_ACTOR}
 
 COPY nuget.config ./
 COPY MaichessUserService/MaichessUserService.csproj MaichessUserService/
-RUN dotnet restore MaichessUserService/MaichessUserService.csproj
+RUN --mount=type=secret,id=GITHUB_TOKEN \
+    GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) \
+    GITHUB_ACTOR=maichess \
+    dotnet restore MaichessUserService/MaichessUserService.csproj
 
 COPY MaichessUserService/ MaichessUserService/
 RUN dotnet publish MaichessUserService/MaichessUserService.csproj \
