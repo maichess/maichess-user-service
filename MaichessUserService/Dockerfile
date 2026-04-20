@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 WORKDIR /src
 
-ARG GITHUB_USER
+ARG GITHUB_ACTOR
 
 COPY nuget.config ./
 COPY MaichessUserService/MaichessUserService.csproj MaichessUserService/
