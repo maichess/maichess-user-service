@@ -93,7 +93,7 @@ internal static class UsersEndpoints
 
     private static UserResponse UserResponseFromStruct(Struct s) =>
         new(
-            s.Fields["id"].StringValue,
+            Guid.Parse(s.Fields["id"].StringValue),
             s.Fields["username"].StringValue,
             (int)s.Fields["elo"].NumberValue,
             (int)s.Fields["wins"].NumberValue,
