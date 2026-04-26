@@ -1,14 +1,15 @@
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using Maichess.Database.V1;
 using Maichess.User.V1;
-using MaichessUserService.Data;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using ProtoUser = Maichess.User.V1.User;
 
 namespace MaichessUserService.Grpc;
 
-internal sealed class UsersGrpcService(UserDbContext db) : Users.UsersBase
+internal sealed class UsersGrpcService(Database.DatabaseClient db) : Users.UsersBase
 {
+    private const string Collection = "users";
+
     public override async Task<CreateUserResponse> CreateUser(
         CreateUserRequest request, ServerCallContext context)
     {
@@ -22,49 +23,52 @@ internal sealed class UsersGrpcService(UserDbContext db) : Users.UsersBase
             throw new RpcException(new Status(StatusCode.InvalidArgument, "password_hash is required"));
         }
 
-        var user = new Entities.User
-        {
-            Id = Guid.NewGuid(),
-            Username = request.Username,
-            PasswordHash = request.PasswordHash,
-        };
-
-        db.Users.Add(user);
+        Struct record = new();
+        record.Fields["username"] = Value.ForString(request.Username);
+        record.Fields["password_hash"] = Value.ForString(request.PasswordHash);
+        record.Fields["elo"] = Value.ForNumber(1200);
+        record.Fields["wins"] = Value.ForNumber(0);
+        record.Fields["losses"] = Value.ForNumber(0);
+        record.Fields["draws"] = Value.ForNumber(0);
 
         try
         {
-            await db.SaveChangesAsync(context.CancellationToken);
+            InsertResponse response = await db.InsertAsync(
+                new InsertRequest { Collection = Collection, Record = record },
+                cancellationToken: context.CancellationToken);
+            return new CreateUserResponse { User = UserFromStruct(response.Record) };
         }
-        catch (DbUpdateException ex)
-            when (ex.InnerException is PostgresException pg
-                  && pg.SqlState == PostgresErrorCodes.UniqueViolation)
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
             throw new RpcException(new Status(StatusCode.AlreadyExists, "username already taken"));
         }
-
-        return new CreateUserResponse { User = MapToProto(user) };
     }
 
     public override async Task<GetUserResponse> GetUser(
         GetUserRequest request, ServerCallContext context)
     {
-        if (!Guid.TryParse(request.UserId, out Guid userId))
+        if (!Guid.TryParse(request.UserId, out _))
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, "user_id must be a valid UUID"));
         }
 
-        Entities.User user = await db.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId, context.CancellationToken)
-            ?? throw new RpcException(new Status(StatusCode.NotFound, $"user {request.UserId} not found"));
-
-        return new GetUserResponse { User = MapToProto(user) };
+        try
+        {
+            GetResponse response = await db.GetAsync(
+                new GetRequest { Collection = Collection, Id = request.UserId },
+                cancellationToken: context.CancellationToken);
+            return new GetUserResponse { User = UserFromStruct(response.Record) };
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"user {request.UserId} not found"));
+        }
     }
 
     public override async Task<UpdateUserResponse> UpdateUser(
         UpdateUserRequest request, ServerCallContext context)
     {
-        if (!Guid.TryParse(request.UserId, out Guid userId))
+        if (!Guid.TryParse(request.UserId, out _))
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, "user_id must be a valid UUID"));
         }
@@ -74,34 +78,33 @@ internal sealed class UsersGrpcService(UserDbContext db) : Users.UsersBase
             throw new RpcException(new Status(StatusCode.InvalidArgument, "username is required"));
         }
 
-        Entities.User user = await db.Users
-            .FirstOrDefaultAsync(u => u.Id == userId, context.CancellationToken)
-            ?? throw new RpcException(new Status(StatusCode.NotFound, $"user {request.UserId} not found"));
-
-        user.Username = request.Username;
+        Struct fields = new();
+        fields.Fields["username"] = Value.ForString(request.Username);
 
         try
         {
-            await db.SaveChangesAsync(context.CancellationToken);
+            UpdateResponse response = await db.UpdateAsync(
+                new UpdateRequest { Collection = Collection, Id = request.UserId, Fields = fields },
+                cancellationToken: context.CancellationToken);
+            return new UpdateUserResponse { User = UserFromStruct(response.Record) };
         }
-        catch (DbUpdateException ex)
-            when (ex.InnerException is PostgresException pg
-                  && pg.SqlState == PostgresErrorCodes.UniqueViolation)
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"user {request.UserId} not found"));
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
             throw new RpcException(new Status(StatusCode.AlreadyExists, "username already taken"));
         }
-
-        return new UpdateUserResponse { User = MapToProto(user) };
     }
 
-    private static ProtoUser MapToProto(Entities.User user) =>
-        new()
-        {
-            Id = user.Id.ToString(),
-            Username = user.Username,
-            Elo = user.Elo,
-            Wins = user.Wins,
-            Losses = user.Losses,
-            Draws = user.Draws,
-        };
+    private static ProtoUser UserFromStruct(Struct s) => new()
+    {
+        Id = s.Fields["id"].StringValue,
+        Username = s.Fields["username"].StringValue,
+        Elo = (int)s.Fields["elo"].NumberValue,
+        Wins = (int)s.Fields["wins"].NumberValue,
+        Losses = (int)s.Fields["losses"].NumberValue,
+        Draws = (int)s.Fields["draws"].NumberValue,
+    };
 }

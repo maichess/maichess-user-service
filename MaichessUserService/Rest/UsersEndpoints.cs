@@ -1,14 +1,15 @@
 using System.Security.Claims;
-using MaichessUserService.Data;
-using MaichessUserService.Entities;
+using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using Maichess.Database.V1;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace MaichessUserService.Rest;
 
 internal static class UsersEndpoints
 {
+    private const string Collection = "users";
+
     internal static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("/users").RequireAuthorization();
@@ -21,30 +22,34 @@ internal static class UsersEndpoints
 
     private static async Task<IResult> GetMe(
         ClaimsPrincipal principal,
-        UserDbContext db,
+        Database.DatabaseClient db,
         CancellationToken ct)
     {
-        if (!TryGetUserId(principal, out Guid userId))
+        if (!TryGetUserId(principal, out string userId))
         {
             return Results.Unauthorized();
         }
 
-        User? user = await db.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        return user is null
-            ? Results.NotFound()
-            : Results.Ok(MapToResponse(user));
+        try
+        {
+            GetResponse response = await db.GetAsync(
+                new GetRequest { Collection = Collection, Id = userId },
+                cancellationToken: ct);
+            return Results.Ok(UserResponseFromStruct(response.Record));
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            return Results.NotFound();
+        }
     }
 
     private static async Task<IResult> PatchMe(
         [FromBody] PatchUserRequest body,
         ClaimsPrincipal principal,
-        UserDbContext db,
+        Database.DatabaseClient db,
         CancellationToken ct)
     {
-        if (!TryGetUserId(principal, out Guid userId))
+        if (!TryGetUserId(principal, out string userId))
         {
             return Results.Unauthorized();
         }
@@ -59,35 +64,39 @@ internal static class UsersEndpoints
             return Results.UnprocessableEntity(new { error = "username must not be empty" });
         }
 
-        User? user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        if (user is null)
-        {
-            return Results.NotFound();
-        }
-
-        user.Username = body.Username;
+        Struct fields = new();
+        fields.Fields["username"] = Value.ForString(body.Username);
 
         try
         {
-            await db.SaveChangesAsync(ct);
+            UpdateResponse response = await db.UpdateAsync(
+                new UpdateRequest { Collection = Collection, Id = userId, Fields = fields },
+                cancellationToken: ct);
+            return Results.Ok(UserResponseFromStruct(response.Record));
         }
-        catch (DbUpdateException ex)
-            when (ex.InnerException is PostgresException pg
-                  && pg.SqlState == PostgresErrorCodes.UniqueViolation)
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            return Results.NotFound();
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
             return Results.Conflict(new { error = "username already taken" });
         }
-
-        return Results.Ok(MapToResponse(user));
     }
 
-    private static bool TryGetUserId(ClaimsPrincipal principal, out Guid userId)
+    private static bool TryGetUserId(ClaimsPrincipal principal, out string userId)
     {
         string? value = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-        return Guid.TryParse(value, out userId);
+        userId = value ?? string.Empty;
+        return !string.IsNullOrEmpty(userId);
     }
 
-    private static UserResponse MapToResponse(User user) =>
-        new(user.Id, user.Username, user.Elo, user.Wins, user.Losses, user.Draws);
+    private static UserResponse UserResponseFromStruct(Struct s) =>
+        new(
+            s.Fields["id"].StringValue,
+            s.Fields["username"].StringValue,
+            (int)s.Fields["elo"].NumberValue,
+            (int)s.Fields["wins"].NumberValue,
+            (int)s.Fields["losses"].NumberValue,
+            (int)s.Fields["draws"].NumberValue);
 }

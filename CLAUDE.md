@@ -13,7 +13,7 @@ Implement against these contracts exactly. If a contract cannot be implemented a
 ## Stack
 
 - **Runtime:** ASP.NET (net10.0), C#, nullable enabled
-- **Database:** PostgreSQL via Entity Framework Core.
+- **Database:** user-db database service via `Database.DatabaseClient` gRPC (`Services:DatabaseService`)
 - **RPC:** gRPC server (base classes from `Maichess.PlatformProtos`)
 
 ## Structure
@@ -22,19 +22,10 @@ Keep the service lightweight. Avoid unnecessary layers — no repository pattern
 
 ```
 MaichessUserService/
-  Entities/        # EF Core entity classes (mapped to DB schema, no write annotations needed)
-  Data/            # DbContext — QueryTrackingBehavior.NoTracking, no write DbSets
   Grpc/            # gRPC service implementations
-  Rest/            # REST controllers
+  Rest/            # REST controllers and response models
   Program.cs       # Minimal startup, DI wiring
 ```
-
-## Entity Framework Rules
-
-- Set `UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)` on the `DbContext`
-- Never call `SaveChanges`, `SaveChangesAsync`, `Add`, `Update`, `Remove`, or `Attach`
-- Use `AsNoTracking()` on individual queries if the context default is not set
-- The DB schema is owned by Auth — do not define or run migrations from this service
 
 ## Code Style
 
