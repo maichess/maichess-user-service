@@ -6,6 +6,8 @@ using MaichessUserService.Grpc;
 using MaichessUserService.Rest;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 DotNetEnv.Env.Load();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -51,6 +53,16 @@ builder.Services
 builder.Services.AddAuthorization();
 builder.Services.AddGrpc();
 builder.Services.AddOpenApi();
+
+string otlpEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT")
+    ?? "http://otel-collector:4317";
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService("user-service"))
+    .WithTracing(t => t
+        .AddAspNetCoreInstrumentation()
+        .AddGrpcClientInstrumentation()
+        .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)));
 
 WebApplication app = builder.Build();
 

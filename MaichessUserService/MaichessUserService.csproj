@@ -28,7 +28,11 @@
         <PackageReference Include="Maichess.PlatformProtos" Version="0.2.10" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.15.1-beta.1" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
     </ItemGroup>
 
 </Project>
