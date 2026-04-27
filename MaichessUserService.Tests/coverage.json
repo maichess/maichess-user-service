@@ -1,0 +1,189 @@
+{
+  "MaichessUserService.dll": {
+    "C:\\Users\\micro\\source\\MaiChess\\services\\maichess-user-service\\MaichessUserService\\UsersService.cs": {
+      "MaichessUserService.UsersService": {
+        "Maichess.User.V1.User MaichessUserService.UsersService::UserFromStruct(Google.Protobuf.WellKnownTypes.Struct)": {
+          "Lines": {
+            "97": 3,
+            "98": 3,
+            "99": 3,
+            "100": 3,
+            "101": 3,
+            "102": 3,
+            "103": 3,
+            "104": 3,
+            "105": 3
+          },
+          "Branches": []
+        },
+        "System.Void MaichessUserService.UsersService::.ctor(Maichess.Database.V1.Database/DatabaseClient)": {
+          "Lines": {
+            "8": 28
+          },
+          "Branches": []
+        }
+      },
+      "MaichessUserService.UsersService/<CreateUserAsync>d__3": {
+        "System.Void MaichessUserService.UsersService/<CreateUserAsync>d__3::MoveNext()": {
+          "Lines": {
+            "13": 5,
+            "14": 5,
+            "15": 2,
+            "16": 2,
+            "19": 3,
+            "20": 1,
+            "21": 1,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2,
+            "28": 2,
+            "29": 2,
+            "30": 2,
+            "33": 2,
+            "34": 2,
+            "35": 2,
+            "36": 2,
+            "37": 1,
+            "39": 1,
+            "40": 1,
+            "41": 1,
+            "43": 5
+          },
+          "Branches": [
+            {
+              "Line": 14,
+              "Offset": 31,
+              "EndOffset": 33,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 2
+            },
+            {
+              "Line": 14,
+              "Offset": 31,
+              "EndOffset": 50,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 3
+            },
+            {
+              "Line": 19,
+              "Offset": 63,
+              "EndOffset": 65,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 19,
+              "Offset": 63,
+              "EndOffset": 82,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 2
+            }
+          ]
+        }
+      },
+      "MaichessUserService.UsersService/<GetUserAsync>d__4": {
+        "System.Void MaichessUserService.UsersService/<GetUserAsync>d__4::MoveNext()": {
+          "Lines": {
+            "46": 3,
+            "47": 3,
+            "48": 1,
+            "49": 1,
+            "53": 2,
+            "54": 2,
+            "55": 2,
+            "56": 2,
+            "57": 1,
+            "59": 1,
+            "60": 1,
+            "61": 1,
+            "63": 3
+          },
+          "Branches": [
+            {
+              "Line": 47,
+              "Offset": 33,
+              "EndOffset": 35,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 47,
+              "Offset": 33,
+              "EndOffset": 47,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            }
+          ]
+        }
+      },
+      "MaichessUserService.UsersService/<UpdateUserAsync>d__5": {
+        "System.Void MaichessUserService.UsersService/<UpdateUserAsync>d__5::MoveNext()": {
+          "Lines": {
+            "66": 6,
+            "67": 6,
+            "68": 1,
+            "69": 1,
+            "72": 5,
+            "73": 2,
+            "74": 2,
+            "77": 3,
+            "78": 3,
+            "81": 3,
+            "82": 3,
+            "83": 3,
+            "84": 3,
+            "85": 1,
+            "87": 2,
+            "88": 1,
+            "89": 1,
+            "91": 1,
+            "92": 1,
+            "93": 1,
+            "95": 6
+          },
+          "Branches": [
+            {
+              "Line": 67,
+              "Offset": 33,
+              "EndOffset": 35,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 67,
+              "Offset": 33,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 5
+            },
+            {
+              "Line": 72,
+              "Offset": 67,
+              "EndOffset": 69,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 2
+            },
+            {
+              "Line": 72,
+              "Offset": 67,
+              "EndOffset": 86,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 3
+            }
+          ]
+        }
+      }
+    }
+  }
+}

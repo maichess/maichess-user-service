@@ -1,6 +1,7 @@
 using System.Text;
 using Grpc.Net.Client;
 using Maichess.Database.V1;
+using MaichessUserService;
 using MaichessUserService.Grpc;
 using MaichessUserService.Rest;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +15,8 @@ string dbServiceUrl = builder.Configuration["Services:DatabaseService"]
 
 builder.Services.AddSingleton(
     new Database.DatabaseClient(GrpcChannel.ForAddress(dbServiceUrl)));
+
+builder.Services.AddSingleton<UsersService>();
 
 string jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Jwt:Key is not configured");
