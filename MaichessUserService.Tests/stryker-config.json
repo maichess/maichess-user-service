@@ -1,0 +1,29 @@
+{
+  "stryker-config": {
+    "project": "MaichessUserService.csproj",
+    "solution": "../maichess-user-service.sln",
+    "test-projects": [
+      "MaichessUserService.Tests.csproj"
+    ],
+    "reporters": [
+      "progress",
+      "html"
+    ],
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    },
+    "mutate": [
+      "!**/Program.cs",
+      "!**/*.g.cs",
+      "!**/*.generated.cs",
+      "!**/Migrations/*.cs"
+    ],
+    "ignore-methods": [
+      "*Log*",
+      "Console.Write*"
+    ]
+  }
+}

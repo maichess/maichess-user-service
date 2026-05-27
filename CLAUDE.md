@@ -39,3 +39,10 @@ MaichessUserService/
 ## Tests
 
 - Do not change tests to make them pass — only change tests when the requirement they cover changes.
+
+### Mutation testing
+
+Stryker.NET is wired up as a local dotnet tool. Config lives in
+`MaichessUserService.Tests/stryker-config.json` (EF Core migrations excluded
+to mirror coverage). Run via `dotnet tool restore` then `dotnet stryker`
+inside the test project directory. See `README.md` for details.
