@@ -22,6 +22,8 @@ internal sealed class GrpcServiceContext
 
     internal UpdateUserResult? UpdateUserResult { get; set; }
 
+    internal InsertRequest? LastInsertRequest { get; set; }
+
     internal UsersService ActiveService => UseConflictingService ? ConflictService : Service;
 
     internal GrpcServiceContext()
@@ -33,7 +35,9 @@ internal sealed class GrpcServiceContext
             Arg.Any<CancellationToken>())
             .Returns(callInfo =>
             {
-                Struct record = callInfo.Arg<InsertRequest>().Record.Clone();
+                InsertRequest request = callInfo.Arg<InsertRequest>();
+                LastInsertRequest = request;
+                Struct record = request.Record.Clone();
                 record.Fields["id"] = Value.ForString(Guid.NewGuid().ToString());
                 return GrpcHelper.GrpcCall(new InsertResponse { Record = record });
             });

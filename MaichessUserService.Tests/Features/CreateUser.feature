@@ -6,6 +6,7 @@ Feature: Create User
     Then the create result is success with username "alice"
     And the created user has Elo 1200
     And the created user has zero wins losses and draws
+    And the database insert stored password hash "hash123" under the "password_hash" field
 
   Scenario: Creating a user with an empty username fails
     When a user is created with username "" and password hash "hash123"

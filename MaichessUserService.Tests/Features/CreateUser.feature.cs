@@ -122,6 +122,10 @@ namespace MaichessUserService.Tests.Features
 #line 8
     await testRunner.AndAsync("the created user has zero wins losses and draws", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
+#line 9
+    await testRunner.AndAsync(("the database insert stored password hash \"hash123\" under the \"password_hash\" fiel" +
+                        "d"), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }
@@ -134,7 +138,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating a user with an empty username fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 10
+#line 11
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -144,10 +148,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 11
+#line 12
     await testRunner.WhenAsync("a user is created with username \"\" and password hash \"hash123\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 12
+#line 13
     await testRunner.ThenAsync("the create result is invalid input \"username is required\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -162,7 +166,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating a user with a whitespace-only username fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 14
+#line 15
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -172,10 +176,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 15
+#line 16
     await testRunner.WhenAsync("a user is created with username \"   \" and password hash \"hash123\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 16
+#line 17
     await testRunner.ThenAsync("the create result is invalid input \"username is required\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -190,7 +194,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating a user with an empty password hash fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 18
+#line 19
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -200,10 +204,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 19
+#line 20
     await testRunner.WhenAsync("a user is created with username \"alice\" and password hash \"\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 20
+#line 21
     await testRunner.ThenAsync("the create result is invalid input \"password_hash is required\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -218,7 +222,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating a user with a username already taken fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 22
+#line 23
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -228,13 +232,13 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 23
+#line 24
     await testRunner.GivenAsync("the database signals a unique constraint violation on next save", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 24
+#line 25
     await testRunner.WhenAsync("a user is created with username \"alice\" and password hash \"hash123\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 25
+#line 26
     await testRunner.ThenAsync("the create result is conflict", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

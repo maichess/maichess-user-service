@@ -85,6 +85,16 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
         Assert.IsType<CreateUserResult.Conflict>(context.CreateUserResult);
     }
 
+    [Then(@"the database insert stored password hash ""([^""]*)"" under the ""([^""]*)"" field")]
+    public void ThenDatabaseInsertStoredPasswordHashUnderField(string expectedHash, string fieldName)
+    {
+        Assert.NotNull(context.LastInsertRequest);
+        Assert.True(
+            context.LastInsertRequest.Record.Fields.TryGetValue(fieldName, out var value),
+            $"InsertRequest record had no '{fieldName}' field");
+        Assert.Equal(expectedHash, value.StringValue);
+    }
+
     // ── Then (GetUser results) ───────────────────────────────────────────────
 
     [Then(@"the get result is success with username ""([^""]*)""")]
