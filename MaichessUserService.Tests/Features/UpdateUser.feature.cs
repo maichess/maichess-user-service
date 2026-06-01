@@ -123,14 +123,14 @@ namespace MaichessUserService.Tests.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Updating a user with a non-UUID id fails")]
+        [Xunit.SkippableFactAttribute(DisplayName="Enabling dev_mode only succeeds and leaves the username unchanged")]
         [Xunit.TraitAttribute("FeatureTitle", "Update User")]
-        [Xunit.TraitAttribute("Description", "Updating a user with a non-UUID id fails")]
-        public async System.Threading.Tasks.Task UpdatingAUserWithANon_UUIDIdFails()
+        [Xunit.TraitAttribute("Description", "Enabling dev_mode only succeeds and leaves the username unchanged")]
+        public async System.Threading.Tasks.Task EnablingDev_ModeOnlySucceedsAndLeavesTheUsernameUnchanged()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating a user with a non-UUID id fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Enabling dev_mode only succeeds and leaves the username unchanged", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 9
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -142,9 +142,148 @@ namespace MaichessUserService.Tests.Features
             {
                 await this.ScenarioStartAsync();
 #line 10
-    await testRunner.WhenAsync("user \"not-a-uuid\" username is updated to \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" and" +
+                        " dev_mode false"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 11
+    await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" dev_mode is updated to true", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 12
+    await testRunner.ThenAsync("the update result is success with username \"alice\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 13
+    await testRunner.AndAsync("the update result has dev_mode true", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Updating the username only leaves dev_mode unchanged")]
+        [Xunit.TraitAttribute("FeatureTitle", "Update User")]
+        [Xunit.TraitAttribute("Description", "Updating the username only leaves dev_mode unchanged")]
+        public async System.Threading.Tasks.Task UpdatingTheUsernameOnlyLeavesDev_ModeUnchanged()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating the username only leaves dev_mode unchanged", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 15
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 16
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" and" +
+                        " dev_mode true"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 17
+    await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" username is updated to \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 18
+    await testRunner.ThenAsync("the update result is success with username \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 19
+    await testRunner.AndAsync("the update result has dev_mode true", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Updating username and dev_mode together succeeds")]
+        [Xunit.TraitAttribute("FeatureTitle", "Update User")]
+        [Xunit.TraitAttribute("Description", "Updating username and dev_mode together succeeds")]
+        public async System.Threading.Tasks.Task UpdatingUsernameAndDev_ModeTogetherSucceeds()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating username and dev_mode together succeeds", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 21
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 22
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" and" +
+                        " dev_mode false"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 23
+    await testRunner.WhenAsync(("user \"00000000-0000-0000-0000-000000000001\" username is updated to \"bob\" and dev_" +
+                        "mode to true"), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 24
+    await testRunner.ThenAsync("the update result is success with username \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 25
+    await testRunner.AndAsync("the update result has dev_mode true", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Updating with no fields fails")]
+        [Xunit.TraitAttribute("FeatureTitle", "Update User")]
+        [Xunit.TraitAttribute("Description", "Updating with no fields fails")]
+        public async System.Threading.Tasks.Task UpdatingWithNoFieldsFails()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating with no fields fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 27
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 28
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" and" +
+                        " dev_mode false"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 29
+    await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" is updated with no fields", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 30
+    await testRunner.ThenAsync(("the update result is invalid input \"at least one of username or dev_mode is requi" +
+                        "red\""), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Updating a user with a non-UUID id fails")]
+        [Xunit.TraitAttribute("FeatureTitle", "Update User")]
+        [Xunit.TraitAttribute("Description", "Updating a user with a non-UUID id fails")]
+        public async System.Threading.Tasks.Task UpdatingAUserWithANon_UUIDIdFails()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating a user with a non-UUID id fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 32
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 33
+    await testRunner.WhenAsync("user \"not-a-uuid\" username is updated to \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 34
     await testRunner.ThenAsync("the update result is invalid input \"user_id must be a valid UUID\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -159,7 +298,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating a user with an empty username fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 13
+#line 36
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -169,13 +308,13 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 14
+#line 37
     await testRunner.GivenAsync("a user exists with id \"00000000-0000-0000-0000-000000000001\" and username \"alice\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 15
+#line 38
     await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" username is updated to \"\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 16
+#line 39
     await testRunner.ThenAsync("the update result is invalid input \"username is required\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -190,7 +329,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating a user with a whitespace-only username fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 18
+#line 41
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -200,13 +339,13 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 19
+#line 42
     await testRunner.GivenAsync("a user exists with id \"00000000-0000-0000-0000-000000000001\" and username \"alice\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 20
+#line 43
     await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" username is updated to \"   \"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 21
+#line 44
     await testRunner.ThenAsync("the update result is invalid input \"username is required\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -221,7 +360,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating a user that does not exist fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 23
+#line 46
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -231,10 +370,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 24
+#line 47
     await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000099\" username is updated to \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 25
+#line 48
     await testRunner.ThenAsync("the update result is not found", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -249,7 +388,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Updating to a username already taken fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 27
+#line 50
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -259,16 +398,16 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 28
+#line 51
     await testRunner.GivenAsync("a user exists with id \"00000000-0000-0000-0000-000000000001\" and username \"alice\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 29
+#line 52
     await testRunner.AndAsync("the database signals a unique constraint violation on next save", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 30
+#line 53
     await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" username is updated to \"bob\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 31
+#line 54
     await testRunner.ThenAsync("the update result is conflict", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

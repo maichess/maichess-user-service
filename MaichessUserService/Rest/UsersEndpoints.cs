@@ -48,12 +48,12 @@ internal static class UsersEndpoints
             return Results.Unauthorized();
         }
 
-        if (body.Username is null)
+        if (body.Username is null && body.DevMode is null)
         {
             return Results.UnprocessableEntity(new { error = "at least one field required" });
         }
 
-        UpdateUserResult result = await usersService.UpdateUserAsync(userId, body.Username, ct);
+        UpdateUserResult result = await usersService.UpdateUserAsync(userId, body.Username, body.DevMode, ct);
         return result switch
         {
             UpdateUserResult.Success ok => Results.Ok(ToResponse(ok.User)),
@@ -72,5 +72,5 @@ internal static class UsersEndpoints
     }
 
     private static UserResponse ToResponse(Maichess.User.V1.User user) =>
-        new(Guid.Parse(user.Id), user.Username, user.Elo, user.Wins, user.Losses, user.Draws);
+        new(Guid.Parse(user.Id), user.Username, user.Elo, user.Wins, user.Losses, user.Draws, user.DevMode);
 }

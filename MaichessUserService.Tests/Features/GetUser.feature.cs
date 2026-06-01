@@ -126,14 +126,14 @@ namespace MaichessUserService.Tests.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Getting a user with a non-UUID id fails")]
+        [Xunit.SkippableFactAttribute(DisplayName="Getting a user returns their dev_mode flag")]
         [Xunit.TraitAttribute("FeatureTitle", "Get User")]
-        [Xunit.TraitAttribute("Description", "Getting a user with a non-UUID id fails")]
-        public async System.Threading.Tasks.Task GettingAUserWithANon_UUIDIdFails()
+        [Xunit.TraitAttribute("Description", "Getting a user returns their dev_mode flag")]
+        public async System.Threading.Tasks.Task GettingAUserReturnsTheirDev_ModeFlag()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Getting a user with a non-UUID id fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Getting a user returns their dev_mode flag", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 10
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -145,9 +145,73 @@ namespace MaichessUserService.Tests.Features
             {
                 await this.ScenarioStartAsync();
 #line 11
-    await testRunner.WhenAsync("user \"not-a-uuid\" is retrieved", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" and" +
+                        " dev_mode true"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 12
+    await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000001\" is retrieved", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 13
+    await testRunner.ThenAsync("the get result has dev_mode true", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Getting a legacy user without a dev_mode field defaults to false")]
+        [Xunit.TraitAttribute("FeatureTitle", "Get User")]
+        [Xunit.TraitAttribute("Description", "Getting a legacy user without a dev_mode field defaults to false")]
+        public async System.Threading.Tasks.Task GettingALegacyUserWithoutADev_ModeFieldDefaultsToFalse()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Getting a legacy user without a dev_mode field defaults to false", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 15
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 16
+    await testRunner.GivenAsync(("a legacy user exists with id \"00000000-0000-0000-0000-000000000002\" and username " +
+                        "\"carol\" with no dev_mode field"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 17
+    await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000002\" is retrieved", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 18
+    await testRunner.ThenAsync("the get result has dev_mode false", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Getting a user with a non-UUID id fails")]
+        [Xunit.TraitAttribute("FeatureTitle", "Get User")]
+        [Xunit.TraitAttribute("Description", "Getting a user with a non-UUID id fails")]
+        public async System.Threading.Tasks.Task GettingAUserWithANon_UUIDIdFails()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Getting a user with a non-UUID id fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 20
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 21
+    await testRunner.WhenAsync("user \"not-a-uuid\" is retrieved", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 22
     await testRunner.ThenAsync("the get result is invalid user id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -162,7 +226,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Getting a user that does not exist fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 14
+#line 24
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -172,10 +236,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 15
+#line 25
     await testRunner.WhenAsync("user \"00000000-0000-0000-0000-000000000099\" is retrieved", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 16
+#line 26
     await testRunner.ThenAsync("the get result is not found", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

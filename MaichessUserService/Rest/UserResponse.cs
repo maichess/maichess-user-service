@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace MaichessUserService.Rest;
 
@@ -9,4 +10,5 @@ internal sealed record UserResponse(
     int Elo,
     int Wins,
     int Losses,
-    int Draws);
+    int Draws,
+    [property: JsonPropertyName("dev_mode")] bool DevMode);

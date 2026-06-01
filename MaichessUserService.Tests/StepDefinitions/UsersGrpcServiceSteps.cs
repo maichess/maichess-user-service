@@ -15,6 +15,18 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
         context.SeedUser(userId, username);
     }
 
+    [Given(@"a user exists with id ""([^""]*)"" username ""([^""]*)"" and dev_mode (true|false)")]
+    public void GivenAUserExistsWithDevMode(string userId, string username, string devMode)
+    {
+        context.SeedUser(userId, username, bool.Parse(devMode));
+    }
+
+    [Given(@"a legacy user exists with id ""([^""]*)"" and username ""([^""]*)"" with no dev_mode field")]
+    public void GivenALegacyUserExists(string userId, string username)
+    {
+        context.SeedUser(userId, username, null);
+    }
+
     [Given(@"the database signals a unique constraint violation on next save")]
     public void GivenTheDatabaseSignalsUniqueConstraintViolation()
     {
@@ -44,7 +56,28 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     public async Task WhenUserUsernameIsUpdatedTo(string userId, string newUsername)
     {
         context.UpdateUserResult = await context.ActiveService.UpdateUserAsync(
-            userId, newUsername, CancellationToken.None);
+            userId, newUsername, null, CancellationToken.None);
+    }
+
+    [When(@"user ""([^""]*)"" dev_mode is updated to (true|false)")]
+    public async Task WhenUserDevModeIsUpdatedTo(string userId, string devMode)
+    {
+        context.UpdateUserResult = await context.ActiveService.UpdateUserAsync(
+            userId, null, bool.Parse(devMode), CancellationToken.None);
+    }
+
+    [When(@"user ""([^""]*)"" username is updated to ""([^""]*)"" and dev_mode to (true|false)")]
+    public async Task WhenUserUsernameAndDevModeAreUpdated(string userId, string newUsername, string devMode)
+    {
+        context.UpdateUserResult = await context.ActiveService.UpdateUserAsync(
+            userId, newUsername, bool.Parse(devMode), CancellationToken.None);
+    }
+
+    [When(@"user ""([^""]*)"" is updated with no fields")]
+    public async Task WhenUserIsUpdatedWithNoFields(string userId)
+    {
+        context.UpdateUserResult = await context.ActiveService.UpdateUserAsync(
+            userId, null, null, CancellationToken.None);
     }
 
     // ── Then (CreateUser results) ─────────────────────────────────────────────
@@ -72,6 +105,13 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
         Assert.Equal(0, result.User.Draws);
     }
 
+    [Then(@"^the created user has dev_mode (true|false)$")]
+    public void ThenTheCreatedUserHasDevMode(string devMode)
+    {
+        var result = Assert.IsType<CreateUserResult.Success>(context.CreateUserResult);
+        Assert.Equal(bool.Parse(devMode), result.User.DevMode);
+    }
+
     [Then(@"the create result is invalid input ""([^""]*)""")]
     public void ThenCreateResultIsInvalidInput(string message)
     {
@@ -95,6 +135,16 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
         Assert.Equal(expectedHash, value.StringValue);
     }
 
+    [Then(@"the database insert stored dev_mode (true|false) under the ""([^""]*)"" field")]
+    public void ThenDatabaseInsertStoredDevModeUnderField(string expected, string fieldName)
+    {
+        Assert.NotNull(context.LastInsertRequest);
+        Assert.True(
+            context.LastInsertRequest.Record.Fields.TryGetValue(fieldName, out var value),
+            $"InsertRequest record had no '{fieldName}' field");
+        Assert.Equal(bool.Parse(expected), value.BoolValue);
+    }
+
     // ── Then (GetUser results) ───────────────────────────────────────────────
 
     [Then(@"the get result is success with username ""([^""]*)""")]
@@ -109,6 +159,13 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     {
         var result = Assert.IsType<GetUserResult.Success>(context.GetUserResult);
         Assert.Equal(userId, result.User.Id);
+    }
+
+    [Then(@"^the get result has dev_mode (true|false)$")]
+    public void ThenGetResultHasDevMode(string devMode)
+    {
+        var result = Assert.IsType<GetUserResult.Success>(context.GetUserResult);
+        Assert.Equal(bool.Parse(devMode), result.User.DevMode);
     }
 
     [Then(@"the get result is invalid user id")]
@@ -137,6 +194,13 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     {
         var result = Assert.IsType<UpdateUserResult.InvalidInput>(context.UpdateUserResult);
         Assert.Equal(message, result.Message);
+    }
+
+    [Then(@"^the update result has dev_mode (true|false)$")]
+    public void ThenUpdateResultHasDevMode(string devMode)
+    {
+        var result = Assert.IsType<UpdateUserResult.Success>(context.UpdateUserResult);
+        Assert.Equal(bool.Parse(devMode), result.User.DevMode);
     }
 
     [Then(@"the update result is not found")]

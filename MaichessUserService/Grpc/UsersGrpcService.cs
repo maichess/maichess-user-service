@@ -34,8 +34,10 @@ internal sealed class UsersGrpcService(UsersService usersService) : Users.UsersB
 
     public override async Task<UpdateUserResponse> UpdateUser(UpdateUserRequest request, ServerCallContext context)
     {
+        string? username = string.IsNullOrEmpty(request.Username) ? null : request.Username;
+        bool? devMode = request.HasDevMode ? request.DevMode : null;
         UpdateUserResult result = await usersService.UpdateUserAsync(
-            request.UserId, request.Username, context.CancellationToken);
+            request.UserId, username, devMode, context.CancellationToken);
         return result switch
         {
             UpdateUserResult.Success ok => new UpdateUserResponse { User = ok.User },

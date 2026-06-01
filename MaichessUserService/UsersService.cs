@@ -28,6 +28,7 @@ internal sealed class UsersService(Database.DatabaseClient db)
         record.Fields["wins"] = Value.ForNumber(0);
         record.Fields["losses"] = Value.ForNumber(0);
         record.Fields["draws"] = Value.ForNumber(0);
+        record.Fields["dev_mode"] = Value.ForBool(false);
 
         try
         {
@@ -62,20 +63,34 @@ internal sealed class UsersService(Database.DatabaseClient db)
         }
     }
 
-    internal async Task<UpdateUserResult> UpdateUserAsync(string userId, string username, CancellationToken ct)
+    internal async Task<UpdateUserResult> UpdateUserAsync(
+        string userId, string? username, bool? devMode, CancellationToken ct)
     {
         if (!Guid.TryParse(userId, out _))
         {
             return new UpdateUserResult.InvalidInput("user_id must be a valid UUID");
         }
 
-        if (string.IsNullOrWhiteSpace(username))
+        if (username is not null && string.IsNullOrWhiteSpace(username))
         {
             return new UpdateUserResult.InvalidInput("username is required");
         }
 
+        if (username is null && devMode is null)
+        {
+            return new UpdateUserResult.InvalidInput("at least one of username or dev_mode is required");
+        }
+
         Struct fields = new();
-        fields.Fields["username"] = Value.ForString(username);
+        if (username is not null)
+        {
+            fields.Fields["username"] = Value.ForString(username);
+        }
+
+        if (devMode is not null)
+        {
+            fields.Fields["dev_mode"] = Value.ForBool(devMode.Value);
+        }
 
         try
         {
@@ -102,5 +117,6 @@ internal sealed class UsersService(Database.DatabaseClient db)
         Wins = (int)s.Fields["wins"].NumberValue,
         Losses = (int)s.Fields["losses"].NumberValue,
         Draws = (int)s.Fields["draws"].NumberValue,
+        DevMode = s.Fields.TryGetValue("dev_mode", out Value? devMode) && devMode.BoolValue,
     };
 }

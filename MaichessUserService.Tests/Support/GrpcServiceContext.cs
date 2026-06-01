@@ -86,9 +86,9 @@ internal sealed class GrpcServiceContext
         ConflictService = new UsersService(_conflictingDb);
     }
 
-    internal void SeedUser(string id, string username)
+    internal void SeedUser(string id, string username, bool? devMode = false)
     {
-        Struct record = BuildRecord(id, username);
+        Struct record = BuildRecord(id, username, devMode);
 
         _db.GetAsync(
             Arg.Is<GetRequest>(r => r.Id == id),
@@ -121,8 +121,9 @@ internal sealed class GrpcServiceContext
             .Returns(GrpcHelper.GrpcCall(new GetResponse { Record = record }));
     }
 
-    private static Struct BuildRecord(string id, string username) =>
-        new()
+    private static Struct BuildRecord(string id, string username, bool? devMode)
+    {
+        Struct record = new()
         {
             Fields =
             {
@@ -135,4 +136,13 @@ internal sealed class GrpcServiceContext
                 ["draws"] = Value.ForNumber(0),
             },
         };
+
+        // A null devMode models a legacy record stored before the field existed.
+        if (devMode is not null)
+        {
+            record.Fields["dev_mode"] = Value.ForBool(devMode.Value);
+        }
+
+        return record;
+    }
 }
