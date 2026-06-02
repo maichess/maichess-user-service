@@ -91,9 +91,17 @@ internal sealed class GrpcServiceContext
     }
 
     internal void SeedUser(
-        string id, string username, bool? devMode = false, int wins = 0, int losses = 0, int draws = 0)
+        string id,
+        string username,
+        bool? devMode = false,
+        int wins = 0,
+        int losses = 0,
+        int draws = 0,
+        double? rating = null,
+        double? ratingDeviation = null,
+        double? volatility = null)
     {
-        Struct record = BuildRecord(id, username, devMode, wins, losses, draws);
+        Struct record = BuildRecord(id, username, devMode, wins, losses, draws, rating, ratingDeviation, volatility);
 
         _db.GetAsync(
             Arg.Is<GetRequest>(r => r.Id == id),
@@ -128,7 +136,16 @@ internal sealed class GrpcServiceContext
             .Returns(GrpcHelper.GrpcCall(new GetResponse { Record = record }));
     }
 
-    private static Struct BuildRecord(string id, string username, bool? devMode, int wins, int losses, int draws)
+    private static Struct BuildRecord(
+        string id,
+        string username,
+        bool? devMode,
+        int wins,
+        int losses,
+        int draws,
+        double? rating,
+        double? ratingDeviation,
+        double? volatility)
     {
         Struct record = new()
         {
@@ -148,6 +165,23 @@ internal sealed class GrpcServiceContext
         if (devMode is not null)
         {
             record.Fields["dev_mode"] = Value.ForBool(devMode.Value);
+        }
+
+        // Null rating fields model legacy records written before Glicko-2 existed,
+        // exercising the service's fallback to elo-derived state.
+        if (rating is not null)
+        {
+            record.Fields["rating"] = Value.ForNumber(rating.Value);
+        }
+
+        if (ratingDeviation is not null)
+        {
+            record.Fields["rating_deviation"] = Value.ForNumber(ratingDeviation.Value);
+        }
+
+        if (volatility is not null)
+        {
+            record.Fields["volatility"] = Value.ForNumber(volatility.Value);
         }
 
         return record;

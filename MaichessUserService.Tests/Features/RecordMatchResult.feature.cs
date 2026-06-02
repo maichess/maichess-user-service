@@ -27,7 +27,8 @@ namespace MaichessUserService.Tests.Features
         private static string[] featureTags = ((string[])(null));
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Record Match Result", ("  The user service records a finished match outcome for a player by\r\n  incrementi" +
-                "ng the matching win, loss, or draw counter."), global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+                "ng the matching win, loss, or draw counter and applying a Glicko-2\r\n  rating upd" +
+                "ate against the supplied opponent."), global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
@@ -93,15 +94,18 @@ namespace MaichessUserService.Tests.Features
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Recording a win increments only the wins counter")]
+        [Xunit.SkippableFactAttribute(DisplayName=("Recording a win against a strong opponent raises the rating and shrinks the devia" +
+            "tion"))]
         [Xunit.TraitAttribute("FeatureTitle", "Record Match Result")]
-        [Xunit.TraitAttribute("Description", "Recording a win increments only the wins counter")]
-        public async System.Threading.Tasks.Task RecordingAWinIncrementsOnlyTheWinsCounter()
+        [Xunit.TraitAttribute("Description", ("Recording a win against a strong opponent raises the rating and shrinks the devia" +
+            "tion"))]
+        public async System.Threading.Tasks.Task RecordingAWinAgainstAStrongOpponentRaisesTheRatingAndShrinksTheDeviation()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording a win increments only the wins counter", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 5
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo(("Recording a win against a strong opponent raises the rating and shrinks the devia" +
+                    "tion"), null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 6
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -111,20 +115,146 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 6
+#line 7
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" rat" +
+                        "ing 400 deviation 350"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 8
+    await testRunner.WhenAsync(("a \"win\" result is recorded for user \"00000000-0000-0000-0000-000000000001\" agains" +
+                        "t opponent rating 1500 deviation 50"), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 9
+    await testRunner.ThenAsync("the record result is success", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 10
+    await testRunner.AndAsync("the recorded user rating is above 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 11
+    await testRunner.AndAsync("the recorded user deviation is below 350", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 12
+    await testRunner.AndAsync("the recorded user elo equals its rounded rating", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 13
+    await testRunner.AndAsync("the database update wrote the \"rating\" field", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 14
+    await testRunner.AndAsync("the database update wrote the \"rating_deviation\" field", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 15
+    await testRunner.AndAsync("the database update wrote the \"volatility\" field", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 16
+    await testRunner.AndAsync("the database update wrote the \"elo\" field", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Recording a loss against a weak opponent lowers the rating")]
+        [Xunit.TraitAttribute("FeatureTitle", "Record Match Result")]
+        [Xunit.TraitAttribute("Description", "Recording a loss against a weak opponent lowers the rating")]
+        public async System.Threading.Tasks.Task RecordingALossAgainstAWeakOpponentLowersTheRating()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording a loss against a weak opponent lowers the rating", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 18
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 19
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" rat" +
+                        "ing 1500 deviation 200"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 20
+    await testRunner.WhenAsync(("a \"loss\" result is recorded for user \"00000000-0000-0000-0000-000000000001\" again" +
+                        "st opponent rating 400 deviation 50"), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 21
+    await testRunner.ThenAsync("the record result is success", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 22
+    await testRunner.AndAsync("the recorded user rating is below 1500", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="A legacy user with no rating fields is rated from their stored elo")]
+        [Xunit.TraitAttribute("FeatureTitle", "Record Match Result")]
+        [Xunit.TraitAttribute("Description", "A legacy user with no rating fields is rated from their stored elo")]
+        public async System.Threading.Tasks.Task ALegacyUserWithNoRatingFieldsIsRatedFromTheirStoredElo()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("A legacy user with no rating fields is rated from their stored elo", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 24
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 25
+    await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" win" +
+                        "s 0 losses 0 draws 0"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 26
+    await testRunner.WhenAsync(("a \"win\" result is recorded for user \"00000000-0000-0000-0000-000000000001\" agains" +
+                        "t opponent rating 1500 deviation 50"), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 27
+    await testRunner.ThenAsync("the record result is success", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 28
+    await testRunner.AndAsync("the recorded user rating is above 1200", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Recording a win increments only the wins counter")]
+        [Xunit.TraitAttribute("FeatureTitle", "Record Match Result")]
+        [Xunit.TraitAttribute("Description", "Recording a win increments only the wins counter")]
+        public async System.Threading.Tasks.Task RecordingAWinIncrementsOnlyTheWinsCounter()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording a win increments only the wins counter", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 30
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 31
     await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" win" +
                         "s 3 losses 2 draws 1"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 7
+#line 32
     await testRunner.WhenAsync("a \"win\" result is recorded for user \"00000000-0000-0000-0000-000000000001\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 8
+#line 33
     await testRunner.ThenAsync("the record result is success", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 9
+#line 34
     await testRunner.AndAsync("the recorded user has wins 4 losses 2 draws 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 10
+#line 35
     await testRunner.AndAsync("the database update set the \"wins\" field to 4", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
@@ -139,7 +269,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording a loss increments only the losses counter", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 12
+#line 37
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -149,20 +279,20 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 13
+#line 38
     await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" win" +
                         "s 3 losses 2 draws 1"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 14
+#line 39
     await testRunner.WhenAsync("a \"loss\" result is recorded for user \"00000000-0000-0000-0000-000000000001\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 15
+#line 40
     await testRunner.ThenAsync("the record result is success", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 16
+#line 41
     await testRunner.AndAsync("the recorded user has wins 3 losses 3 draws 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 17
+#line 42
     await testRunner.AndAsync("the database update set the \"losses\" field to 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
@@ -177,7 +307,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording a draw increments only the draws counter", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 19
+#line 44
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -187,20 +317,20 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 20
+#line 45
     await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" win" +
                         "s 3 losses 2 draws 1"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 21
+#line 46
     await testRunner.WhenAsync("a \"draw\" result is recorded for user \"00000000-0000-0000-0000-000000000001\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 22
+#line 47
     await testRunner.ThenAsync("the record result is success", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 23
+#line 48
     await testRunner.AndAsync("the recorded user has wins 3 losses 2 draws 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 24
+#line 49
     await testRunner.AndAsync("the database update set the \"draws\" field to 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
@@ -215,7 +345,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording for a non-UUID id fails validation", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 26
+#line 51
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -225,10 +355,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 27
+#line 52
     await testRunner.WhenAsync("a \"win\" result is recorded for user \"not-a-uuid\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 28
+#line 53
     await testRunner.ThenAsync("the record result is invalid input \"user_id must be a valid UUID\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -243,7 +373,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording an unspecified outcome fails validation", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 30
+#line 55
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -253,15 +383,15 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 31
+#line 56
     await testRunner.GivenAsync(("a user exists with id \"00000000-0000-0000-0000-000000000001\" username \"alice\" win" +
                         "s 0 losses 0 draws 0"), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 32
+#line 57
     await testRunner.WhenAsync(("an \"unspecified\" result is recorded for user \"00000000-0000-0000-0000-00000000000" +
                         "1\""), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 33
+#line 58
     await testRunner.ThenAsync("the record result is invalid input \"outcome is required\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -276,7 +406,7 @@ namespace MaichessUserService.Tests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recording for a user that does not exist fails", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 35
+#line 60
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -286,10 +416,10 @@ namespace MaichessUserService.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 36
+#line 61
     await testRunner.WhenAsync("a \"win\" result is recorded for user \"00000000-0000-0000-0000-000000000099\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 37
+#line 62
     await testRunner.ThenAsync("the record result is not found", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

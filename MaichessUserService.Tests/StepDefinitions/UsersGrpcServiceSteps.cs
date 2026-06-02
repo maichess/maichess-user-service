@@ -1,3 +1,4 @@
+using System.Globalization;
 using Maichess.User.V1;
 using MaichessUserService.Tests.Support;
 using Reqnroll;
@@ -20,6 +21,13 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     public void GivenAUserExistsWithStats(string userId, string username, int wins, int losses, int draws)
     {
         context.SeedUser(userId, username, false, wins, losses, draws);
+    }
+
+    [Given(@"a user exists with id ""([^""]*)"" username ""([^""]*)"" rating (\d+) deviation (\d+)")]
+    public void GivenAUserExistsWithRating(string userId, string username, int rating, int deviation)
+    {
+        context.SeedUser(
+            userId, username, false, 0, 0, 0, rating, deviation, 0.06);
     }
 
     [Given(@"a user exists with id ""([^""]*)"" username ""([^""]*)"" and dev_mode (true|false)")]
@@ -93,7 +101,15 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     public async Task WhenAResultIsRecordedForUser(string outcome, string userId)
     {
         context.RecordMatchResultResult = await context.ActiveService.RecordMatchResultAsync(
-            userId, ParseOutcome(outcome), CancellationToken.None);
+            userId, ParseOutcome(outcome), 1500.0, 350.0, CancellationToken.None);
+    }
+
+    [When(@"an? ""([^""]*)"" result is recorded for user ""([^""]*)"" against opponent rating (\d+) deviation (\d+)")]
+    public async Task WhenAResultIsRecordedAgainstOpponent(
+        string outcome, string userId, int opponentRating, int opponentRd)
+    {
+        context.RecordMatchResultResult = await context.ActiveService.RecordMatchResultAsync(
+            userId, ParseOutcome(outcome), opponentRating, opponentRd, CancellationToken.None);
     }
 
     // ── Then (CreateUser results) ─────────────────────────────────────────────
@@ -126,6 +142,25 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     {
         var result = Assert.IsType<CreateUserResult.Success>(context.CreateUserResult);
         Assert.Equal(bool.Parse(devMode), result.User.DevMode);
+    }
+
+    [Then(@"the created user has rating (\d+) deviation (\d+) volatility ""([^""]*)""")]
+    public void ThenTheCreatedUserHasRating(int rating, int deviation, string volatility)
+    {
+        var result = Assert.IsType<CreateUserResult.Success>(context.CreateUserResult);
+        Assert.Equal(rating, result.User.Rating);
+        Assert.Equal(deviation, result.User.RatingDeviation);
+        Assert.Equal(double.Parse(volatility, CultureInfo.InvariantCulture), result.User.Volatility);
+    }
+
+    [Then(@"the database insert stored ([0-9.]+) under the ""([^""]*)"" field")]
+    public void ThenDatabaseInsertStoredNumberUnderField(string expected, string fieldName)
+    {
+        Assert.NotNull(context.LastInsertRequest);
+        Assert.True(
+            context.LastInsertRequest.Record.Fields.TryGetValue(fieldName, out var value),
+            $"InsertRequest record had no '{fieldName}' field");
+        Assert.Equal(double.Parse(expected, CultureInfo.InvariantCulture), value.NumberValue);
     }
 
     [Then(@"the create result is invalid input ""([^""]*)""")]
@@ -256,6 +291,45 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
             context.LastUpdateRequest.Fields.Fields.TryGetValue(fieldName, out var value),
             $"UpdateRequest fields had no '{fieldName}' field");
         Assert.Equal(expected, (int)value.NumberValue);
+    }
+
+    [Then(@"the recorded user rating is above (\d+)")]
+    public void ThenRecordedUserRatingIsAbove(int floor)
+    {
+        var result = Assert.IsType<RecordMatchResultResult.Success>(context.RecordMatchResultResult);
+        Assert.True(result.User.Rating > floor, $"expected rating > {floor} but was {result.User.Rating}");
+    }
+
+    [Then(@"the recorded user rating is below (\d+)")]
+    public void ThenRecordedUserRatingIsBelow(int ceiling)
+    {
+        var result = Assert.IsType<RecordMatchResultResult.Success>(context.RecordMatchResultResult);
+        Assert.True(result.User.Rating < ceiling, $"expected rating < {ceiling} but was {result.User.Rating}");
+    }
+
+    [Then(@"the recorded user deviation is below (\d+)")]
+    public void ThenRecordedUserDeviationIsBelow(int ceiling)
+    {
+        var result = Assert.IsType<RecordMatchResultResult.Success>(context.RecordMatchResultResult);
+        Assert.True(
+            result.User.RatingDeviation < ceiling,
+            $"expected deviation < {ceiling} but was {result.User.RatingDeviation}");
+    }
+
+    [Then(@"the recorded user elo equals its rounded rating")]
+    public void ThenRecordedUserEloEqualsRoundedRating()
+    {
+        var result = Assert.IsType<RecordMatchResultResult.Success>(context.RecordMatchResultResult);
+        Assert.Equal((int)Math.Round(result.User.Rating), result.User.Elo);
+    }
+
+    [Then(@"the database update wrote the ""([^""]*)"" field")]
+    public void ThenDatabaseUpdateWroteField(string fieldName)
+    {
+        Assert.NotNull(context.LastUpdateRequest);
+        Assert.True(
+            context.LastUpdateRequest.Fields.Fields.ContainsKey(fieldName),
+            $"UpdateRequest fields had no '{fieldName}' field");
     }
 
     [Then(@"the record result is invalid input ""([^""]*)""")]

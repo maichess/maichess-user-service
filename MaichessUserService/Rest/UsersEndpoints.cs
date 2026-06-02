@@ -72,5 +72,15 @@ internal static class UsersEndpoints
     }
 
     private static UserResponse ToResponse(Maichess.User.V1.User user) =>
-        new(Guid.Parse(user.Id), user.Username, user.Elo, user.Wins, user.Losses, user.Draws, user.DevMode);
+        new(
+            Guid.Parse(user.Id),
+            user.Username,
+            user.Elo,
+            user.Wins,
+            user.Losses,
+            user.Draws,
+            user.DevMode,
+            user.Rating,
+            user.RatingDeviation,
+            user.Volatility);
 }

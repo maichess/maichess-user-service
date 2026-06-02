@@ -11,4 +11,7 @@ internal sealed record UserResponse(
     int Wins,
     int Losses,
     int Draws,
-    [property: JsonPropertyName("dev_mode")] bool DevMode);
+    [property: JsonPropertyName("dev_mode")] bool DevMode,
+    double Rating,
+    [property: JsonPropertyName("rating_deviation")] double RatingDeviation,
+    double Volatility);

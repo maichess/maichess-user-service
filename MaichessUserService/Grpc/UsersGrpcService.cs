@@ -52,7 +52,7 @@ internal sealed class UsersGrpcService(UsersService usersService) : Users.UsersB
         RecordMatchResultRequest request, ServerCallContext context)
     {
         RecordMatchResultResult result = await usersService.RecordMatchResultAsync(
-            request.UserId, request.Outcome, context.CancellationToken);
+            request.UserId, request.Outcome, request.OpponentRating, request.OpponentRd, context.CancellationToken);
         return result switch
         {
             RecordMatchResultResult.Success ok => new RecordMatchResultResponse { User = ok.User },
