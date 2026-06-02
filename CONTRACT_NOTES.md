@@ -41,7 +41,7 @@ dotnet ef database update
 
 ---
 
-## Pending: `Maichess.PlatformProtos` 0.3.3 not yet published (dev_mode)
+## `dev_mode` contract — shipped
 
 Feature `01-dev-mode-toggle` added `dev_mode` to the user contract:
 
@@ -50,30 +50,28 @@ Feature `01-dev-mode-toggle` added `dev_mode` to the user contract:
 - `dev_mode` in the `GET /users/me` response and `PATCH /users/me` request
   (`rest/users.md`)
 
-These contract edits are committed to `maichess-api-contracts` and the package
-`<Version>` was bumped to **0.3.3**, but the package is **not yet published**.
+These are published in `Maichess.PlatformProtos` and this service references the
+package (currently **0.4.0**), so `User.DevMode` and
+`UpdateUserRequest.HasDevMode`/`DevMode` resolve and the build succeeds. (Earlier
+versions of this note tracked an unpublished `0.3.3` handoff; that is resolved.)
 
-**Blocker / handoff required.** Per the contract-versioning handoff:
+---
 
-1. In `maichess-api-contracts`, commit, tag `v0.3.3`, and push so the C# NuGet
-   and Scala packages build and become available on GitHub Packages.
-2. This service's `PackageReference` is already pinned to `0.3.3`; all other
-   consumers were reconciled to `0.3.3` as well
-   (`maichess-analysis-service`, `maichess-database-service` (+ tests),
-   `maichess-match-maker-service`, `maichess-match-manager-service`, and the
-   Scala `maichess-engine-service` / `maichess-move-validator-service`
-   `build.sbt`).
+## Schema migration required for new profile fields
 
-Until `v0.3.3` is published, `dotnet restore`/`dotnet test` for this service
-cannot resolve the new generated members (`User.DevMode`,
-`UpdateUserRequest.HasDevMode`/`DevMode`) and the build will fail. The code in
-this service is written against those members and is ready to verify once the
-package is available.
+An earlier version of this note claimed "no data migration needed" because
+persistence goes through the generic database-service (`Struct` records). That
+was wrong for `user-db`, which is **PostgreSQL with typed columns**: a `Struct`
+field with no backing column makes the `UPDATE`/`INSERT` fail (`42703`, undefined
+column). This is exactly why the client dev-mode toggle returned "Failed to
+update developer mode" — the `dev_mode` column never existed. The read-side
+missing-field fallback only masked it on reads.
 
-**No data migration needed.** Persistence goes through the generic
-database-service (`Struct` records in the `users` collection), not the EF Core
-schema described above. `dev_mode` is defaulted to `false` on create and read
-back with a missing-field-defaults-to-`false` fallback, so pre-existing user
-records remain valid without a schema change. (The EF Core schema section above
-is legacy and does not reflect the current `Database.DatabaseClient` persistence
-path.)
+The `dev_mode` column (and the Glicko-2 columns `rating`, `rating_deviation`,
+`volatility`, which had the same latent problem affecting registration and
+match-result recording) are added in the database service's
+`Adapters/Postgres/Migrations/UserPostgresMigration.cs` via idempotent
+`ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, with `rating` backfilled from the
+existing `elo` for pre-existing rows. (The EF Core schema section near the top
+of this file is legacy and does not reflect the current
+`Database.DatabaseClient` persistence path.)
