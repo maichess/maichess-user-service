@@ -4,28 +4,28 @@
       "MaichessUserService.UsersService": {
         "Maichess.User.V1.User MaichessUserService.UsersService::UserFromStruct(Google.Protobuf.WellKnownTypes.Struct)": {
           "Lines": {
-            "112": 8,
-            "113": 8,
-            "114": 8,
-            "115": 8,
-            "116": 8,
-            "117": 8,
-            "118": 8,
-            "119": 8,
-            "120": 8,
-            "121": 8
+            "154": 14,
+            "155": 14,
+            "156": 14,
+            "157": 14,
+            "158": 14,
+            "159": 14,
+            "160": 14,
+            "161": 14,
+            "162": 14,
+            "163": 14
           },
           "Branches": [
             {
-              "Line": 112,
+              "Line": 154,
               "Offset": 196,
               "EndOffset": 198,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 7
+              "Hits": 13
             },
             {
-              "Line": 112,
+              "Line": 154,
               "Offset": 196,
               "EndOffset": 206,
               "Path": 1,
@@ -36,7 +36,7 @@
         },
         "System.Void MaichessUserService.UsersService::.ctor(Maichess.Database.V1.Database/DatabaseClient)": {
           "Lines": {
-            "8": 40
+            "9": 52
           },
           "Branches": []
         }
@@ -44,14 +44,13 @@
       "MaichessUserService.UsersService/<CreateUserAsync>d__3": {
         "System.Void MaichessUserService.UsersService/<CreateUserAsync>d__3::MoveNext()": {
           "Lines": {
-            "13": 5,
             "14": 5,
-            "15": 2,
+            "15": 5,
             "16": 2,
-            "19": 3,
-            "20": 1,
+            "17": 2,
+            "20": 3,
             "21": 1,
-            "24": 2,
+            "22": 1,
             "25": 2,
             "26": 2,
             "27": 2,
@@ -59,19 +58,20 @@
             "29": 2,
             "30": 2,
             "31": 2,
-            "34": 2,
+            "32": 2,
             "35": 2,
             "36": 2,
             "37": 2,
-            "38": 1,
-            "40": 1,
+            "38": 2,
+            "39": 1,
             "41": 1,
             "42": 1,
-            "44": 5
+            "43": 1,
+            "45": 5
           },
           "Branches": [
             {
-              "Line": 14,
+              "Line": 15,
               "Offset": 31,
               "EndOffset": 33,
               "Path": 0,
@@ -79,7 +79,7 @@
               "Hits": 2
             },
             {
-              "Line": 14,
+              "Line": 15,
               "Offset": 31,
               "EndOffset": 50,
               "Path": 1,
@@ -87,7 +87,7 @@
               "Hits": 3
             },
             {
-              "Line": 19,
+              "Line": 20,
               "Offset": 63,
               "EndOffset": 65,
               "Path": 0,
@@ -95,7 +95,7 @@
               "Hits": 1
             },
             {
-              "Line": 19,
+              "Line": 20,
               "Offset": 63,
               "EndOffset": 82,
               "Path": 1,
@@ -108,23 +108,23 @@
       "MaichessUserService.UsersService/<GetUserAsync>d__4": {
         "System.Void MaichessUserService.UsersService/<GetUserAsync>d__4::MoveNext()": {
           "Lines": {
-            "47": 5,
             "48": 5,
-            "49": 1,
+            "49": 5,
             "50": 1,
-            "54": 4,
+            "51": 1,
             "55": 4,
             "56": 4,
             "57": 4,
-            "58": 3,
-            "60": 1,
+            "58": 4,
+            "59": 3,
             "61": 1,
             "62": 1,
-            "64": 5
+            "63": 1,
+            "65": 5
           },
           "Branches": [
             {
-              "Line": 48,
+              "Line": 49,
               "Offset": 33,
               "EndOffset": 35,
               "Path": 0,
@@ -132,7 +132,7 @@
               "Hits": 1
             },
             {
-              "Line": 48,
+              "Line": 49,
               "Offset": 33,
               "EndOffset": 47,
               "Path": 1,
@@ -142,44 +142,160 @@
           ]
         }
       },
-      "MaichessUserService.UsersService/<UpdateUserAsync>d__5": {
-        "System.Void MaichessUserService.UsersService/<UpdateUserAsync>d__5::MoveNext()": {
+      "MaichessUserService.UsersService/<RecordMatchResultAsync>d__6": {
+        "System.Void MaichessUserService.UsersService/<RecordMatchResultAsync>d__6::MoveNext()": {
           "Lines": {
-            "68": 10,
-            "69": 10,
-            "70": 1,
-            "71": 1,
-            "74": 9,
-            "75": 2,
-            "76": 2,
-            "79": 7,
-            "80": 1,
-            "81": 1,
-            "84": 6,
-            "85": 6,
-            "86": 5,
-            "87": 5,
-            "88": 5,
-            "90": 6,
-            "91": 2,
-            "92": 2,
-            "93": 2,
-            "96": 6,
-            "97": 6,
-            "98": 6,
-            "99": 6,
-            "100": 4,
-            "102": 2,
-            "103": 1,
-            "104": 1,
-            "106": 1,
-            "107": 1,
-            "108": 1,
-            "110": 10
+            "115": 6,
+            "116": 6,
+            "117": 1,
+            "118": 1,
+            "121": 5,
+            "122": 1,
+            "123": 1,
+            "127": 4,
+            "128": 4,
+            "129": 4,
+            "130": 4,
+            "131": 3,
+            "133": 3,
+            "134": 3,
+            "135": 1,
+            "136": 1,
+            "137": 1,
+            "138": 3,
+            "140": 3,
+            "141": 3,
+            "143": 3,
+            "144": 3,
+            "145": 3,
+            "146": 3,
+            "148": 1,
+            "149": 1,
+            "150": 1,
+            "152": 6
           },
           "Branches": [
             {
-              "Line": 69,
+              "Line": 116,
+              "Offset": 34,
+              "EndOffset": 36,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 116,
+              "Offset": 34,
+              "EndOffset": 53,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 5
+            },
+            {
+              "Line": 121,
+              "Offset": 66,
+              "EndOffset": 70,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 4
+            },
+            {
+              "Line": 121,
+              "Offset": 66,
+              "EndOffset": 75,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 121,
+              "Offset": 87,
+              "EndOffset": 89,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 121,
+              "Offset": 87,
+              "EndOffset": 106,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 4
+            },
+            {
+              "Line": 133,
+              "Offset": 351,
+              "EndOffset": 355,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 2
+            },
+            {
+              "Line": 133,
+              "Offset": 351,
+              "EndOffset": 362,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 1
+            },
+            {
+              "Line": 133,
+              "Offset": 358,
+              "EndOffset": 389,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 1
+            },
+            {
+              "Line": 133,
+              "Offset": 358,
+              "EndOffset": 416,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 1
+            }
+          ]
+        }
+      },
+      "MaichessUserService.UsersService/<UpdateUserAsync>d__5": {
+        "System.Void MaichessUserService.UsersService/<UpdateUserAsync>d__5::MoveNext()": {
+          "Lines": {
+            "69": 10,
+            "70": 10,
+            "71": 1,
+            "72": 1,
+            "75": 9,
+            "76": 2,
+            "77": 2,
+            "80": 7,
+            "81": 1,
+            "82": 1,
+            "85": 6,
+            "86": 6,
+            "87": 5,
+            "88": 5,
+            "89": 5,
+            "91": 6,
+            "92": 2,
+            "93": 2,
+            "94": 2,
+            "97": 6,
+            "98": 6,
+            "99": 6,
+            "100": 6,
+            "101": 4,
+            "103": 2,
+            "104": 1,
+            "105": 1,
+            "107": 1,
+            "108": 1,
+            "109": 1,
+            "111": 10
+          },
+          "Branches": [
+            {
+              "Line": 70,
               "Offset": 36,
               "EndOffset": 38,
               "Path": 0,
@@ -187,7 +303,7 @@
               "Hits": 1
             },
             {
-              "Line": 69,
+              "Line": 70,
               "Offset": 36,
               "EndOffset": 55,
               "Path": 1,
@@ -195,7 +311,7 @@
               "Hits": 9
             },
             {
-              "Line": 74,
+              "Line": 75,
               "Offset": 61,
               "EndOffset": 63,
               "Path": 0,
@@ -203,7 +319,7 @@
               "Hits": 7
             },
             {
-              "Line": 74,
+              "Line": 75,
               "Offset": 61,
               "EndOffset": 76,
               "Path": 1,
@@ -211,7 +327,7 @@
               "Hits": 2
             },
             {
-              "Line": 74,
+              "Line": 75,
               "Offset": 81,
               "EndOffset": 83,
               "Path": 0,
@@ -219,7 +335,7 @@
               "Hits": 2
             },
             {
-              "Line": 74,
+              "Line": 75,
               "Offset": 81,
               "EndOffset": 100,
               "Path": 1,
@@ -227,7 +343,7 @@
               "Hits": 7
             },
             {
-              "Line": 79,
+              "Line": 80,
               "Offset": 106,
               "EndOffset": 108,
               "Path": 0,
@@ -235,7 +351,7 @@
               "Hits": 2
             },
             {
-              "Line": 79,
+              "Line": 80,
               "Offset": 106,
               "EndOffset": 124,
               "Path": 1,
@@ -243,7 +359,7 @@
               "Hits": 5
             },
             {
-              "Line": 79,
+              "Line": 80,
               "Offset": 129,
               "EndOffset": 131,
               "Path": 0,
@@ -251,7 +367,7 @@
               "Hits": 1
             },
             {
-              "Line": 79,
+              "Line": 80,
               "Offset": 129,
               "EndOffset": 148,
               "Path": 1,
@@ -259,7 +375,7 @@
               "Hits": 6
             },
             {
-              "Line": 85,
+              "Line": 86,
               "Offset": 172,
               "EndOffset": 174,
               "Path": 0,
@@ -267,7 +383,7 @@
               "Hits": 5
             },
             {
-              "Line": 85,
+              "Line": 86,
               "Offset": 172,
               "EndOffset": 209,
               "Path": 1,
@@ -275,7 +391,7 @@
               "Hits": 6
             },
             {
-              "Line": 90,
+              "Line": 91,
               "Offset": 224,
               "EndOffset": 226,
               "Path": 0,
@@ -283,7 +399,7 @@
               "Hits": 2
             },
             {
-              "Line": 90,
+              "Line": 91,
               "Offset": 224,
               "EndOffset": 266,
               "Path": 1,

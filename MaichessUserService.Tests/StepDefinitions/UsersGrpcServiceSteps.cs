@@ -1,3 +1,4 @@
+using Maichess.User.V1;
 using MaichessUserService.Tests.Support;
 using Reqnroll;
 using Xunit;
@@ -13,6 +14,12 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     public void GivenAUserExistsWithIdAndUsername(string userId, string username)
     {
         context.SeedUser(userId, username);
+    }
+
+    [Given(@"a user exists with id ""([^""]*)"" username ""([^""]*)"" wins (\d+) losses (\d+) draws (\d+)")]
+    public void GivenAUserExistsWithStats(string userId, string username, int wins, int losses, int draws)
+    {
+        context.SeedUser(userId, username, false, wins, losses, draws);
     }
 
     [Given(@"a user exists with id ""([^""]*)"" username ""([^""]*)"" and dev_mode (true|false)")]
@@ -78,6 +85,15 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     {
         context.UpdateUserResult = await context.ActiveService.UpdateUserAsync(
             userId, null, null, CancellationToken.None);
+    }
+
+    // ── When (RecordMatchResult) ─────────────────────────────────────────────
+
+    [When(@"an? ""([^""]*)"" result is recorded for user ""([^""]*)""")]
+    public async Task WhenAResultIsRecordedForUser(string outcome, string userId)
+    {
+        context.RecordMatchResultResult = await context.ActiveService.RecordMatchResultAsync(
+            userId, ParseOutcome(outcome), CancellationToken.None);
     }
 
     // ── Then (CreateUser results) ─────────────────────────────────────────────
@@ -214,4 +230,52 @@ internal sealed class UsersGrpcServiceSteps(GrpcServiceContext context)
     {
         Assert.IsType<UpdateUserResult.Conflict>(context.UpdateUserResult);
     }
+
+    // ── Then (RecordMatchResult results) ──────────────────────────────────────
+
+    [Then(@"the record result is success")]
+    public void ThenRecordResultIsSuccess()
+    {
+        Assert.IsType<RecordMatchResultResult.Success>(context.RecordMatchResultResult);
+    }
+
+    [Then(@"the recorded user has wins (\d+) losses (\d+) draws (\d+)")]
+    public void ThenRecordedUserHasStats(int wins, int losses, int draws)
+    {
+        var result = Assert.IsType<RecordMatchResultResult.Success>(context.RecordMatchResultResult);
+        Assert.Equal(wins, result.User.Wins);
+        Assert.Equal(losses, result.User.Losses);
+        Assert.Equal(draws, result.User.Draws);
+    }
+
+    [Then(@"the database update set the ""([^""]*)"" field to (\d+)")]
+    public void ThenDatabaseUpdateSetFieldTo(string fieldName, int expected)
+    {
+        Assert.NotNull(context.LastUpdateRequest);
+        Assert.True(
+            context.LastUpdateRequest.Fields.Fields.TryGetValue(fieldName, out var value),
+            $"UpdateRequest fields had no '{fieldName}' field");
+        Assert.Equal(expected, (int)value.NumberValue);
+    }
+
+    [Then(@"the record result is invalid input ""([^""]*)""")]
+    public void ThenRecordResultIsInvalidInput(string message)
+    {
+        var result = Assert.IsType<RecordMatchResultResult.InvalidInput>(context.RecordMatchResultResult);
+        Assert.Equal(message, result.Message);
+    }
+
+    [Then(@"the record result is not found")]
+    public void ThenRecordResultIsNotFound()
+    {
+        Assert.IsType<RecordMatchResultResult.NotFound>(context.RecordMatchResultResult);
+    }
+
+    private static MatchOutcome ParseOutcome(string outcome) => outcome switch
+    {
+        "win" => MatchOutcome.Win,
+        "loss" => MatchOutcome.Loss,
+        "draw" => MatchOutcome.Draw,
+        _ => MatchOutcome.Unspecified,
+    };
 }

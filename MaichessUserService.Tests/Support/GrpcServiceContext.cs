@@ -22,7 +22,11 @@ internal sealed class GrpcServiceContext
 
     internal UpdateUserResult? UpdateUserResult { get; set; }
 
+    internal RecordMatchResultResult? RecordMatchResultResult { get; set; }
+
     internal InsertRequest? LastInsertRequest { get; set; }
+
+    internal UpdateRequest? LastUpdateRequest { get; set; }
 
     internal UsersService ActiveService => UseConflictingService ? ConflictService : Service;
 
@@ -86,9 +90,10 @@ internal sealed class GrpcServiceContext
         ConflictService = new UsersService(_conflictingDb);
     }
 
-    internal void SeedUser(string id, string username, bool? devMode = false)
+    internal void SeedUser(
+        string id, string username, bool? devMode = false, int wins = 0, int losses = 0, int draws = 0)
     {
-        Struct record = BuildRecord(id, username, devMode);
+        Struct record = BuildRecord(id, username, devMode, wins, losses, draws);
 
         _db.GetAsync(
             Arg.Is<GetRequest>(r => r.Id == id),
@@ -104,8 +109,10 @@ internal sealed class GrpcServiceContext
             Arg.Any<CancellationToken>())
             .Returns(callInfo =>
             {
+                UpdateRequest request = callInfo.Arg<UpdateRequest>();
+                LastUpdateRequest = request;
                 Struct updated = record.Clone();
-                foreach (var field in callInfo.Arg<UpdateRequest>().Fields.Fields)
+                foreach (var field in request.Fields.Fields)
                 {
                     updated.Fields[field.Key] = field.Value;
                 }
@@ -121,7 +128,7 @@ internal sealed class GrpcServiceContext
             .Returns(GrpcHelper.GrpcCall(new GetResponse { Record = record }));
     }
 
-    private static Struct BuildRecord(string id, string username, bool? devMode)
+    private static Struct BuildRecord(string id, string username, bool? devMode, int wins, int losses, int draws)
     {
         Struct record = new()
         {
@@ -131,9 +138,9 @@ internal sealed class GrpcServiceContext
                 ["username"] = Value.ForString(username),
                 ["password_hash"] = Value.ForString(string.Empty),
                 ["elo"] = Value.ForNumber(1200),
-                ["wins"] = Value.ForNumber(0),
-                ["losses"] = Value.ForNumber(0),
-                ["draws"] = Value.ForNumber(0),
+                ["wins"] = Value.ForNumber(wins),
+                ["losses"] = Value.ForNumber(losses),
+                ["draws"] = Value.ForNumber(draws),
             },
         };
 

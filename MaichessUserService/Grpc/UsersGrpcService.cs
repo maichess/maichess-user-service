@@ -47,4 +47,18 @@ internal sealed class UsersGrpcService(UsersService usersService) : Users.UsersB
             _ => throw new RpcException(new Status(StatusCode.Internal, "unexpected result")),
         };
     }
+
+    public override async Task<RecordMatchResultResponse> RecordMatchResult(
+        RecordMatchResultRequest request, ServerCallContext context)
+    {
+        RecordMatchResultResult result = await usersService.RecordMatchResultAsync(
+            request.UserId, request.Outcome, context.CancellationToken);
+        return result switch
+        {
+            RecordMatchResultResult.Success ok => new RecordMatchResultResponse { User = ok.User },
+            RecordMatchResultResult.InvalidInput err => throw new RpcException(new Status(StatusCode.InvalidArgument, err.Message)),
+            RecordMatchResultResult.NotFound => throw new RpcException(new Status(StatusCode.NotFound, $"user {request.UserId} not found")),
+            _ => throw new RpcException(new Status(StatusCode.Internal, "unexpected result")),
+        };
+    }
 }

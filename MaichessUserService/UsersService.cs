@@ -1,6 +1,7 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Maichess.Database.V1;
+using Maichess.User.V1;
 using ProtoUser = Maichess.User.V1.User;
 
 namespace MaichessUserService;
@@ -106,6 +107,47 @@ internal sealed class UsersService(Database.DatabaseClient db)
         catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
             return new UpdateUserResult.Conflict();
+        }
+    }
+
+    internal async Task<RecordMatchResultResult> RecordMatchResultAsync(
+        string userId, MatchOutcome outcome, CancellationToken ct)
+    {
+        if (!Guid.TryParse(userId, out _))
+        {
+            return new RecordMatchResultResult.InvalidInput("user_id must be a valid UUID");
+        }
+
+        if (outcome is not (MatchOutcome.Win or MatchOutcome.Loss or MatchOutcome.Draw))
+        {
+            return new RecordMatchResultResult.InvalidInput("outcome is required");
+        }
+
+        try
+        {
+            GetResponse getResponse = await db.GetAsync(
+                new GetRequest { Collection = Collection, Id = userId },
+                cancellationToken: ct);
+            ProtoUser user = UserFromStruct(getResponse.Record);
+
+            (string field, int newValue) = outcome switch
+            {
+                MatchOutcome.Win => ("wins", user.Wins + 1),
+                MatchOutcome.Loss => ("losses", user.Losses + 1),
+                _ => ("draws", user.Draws + 1),
+            };
+
+            Struct fields = new();
+            fields.Fields[field] = Value.ForNumber(newValue);
+
+            UpdateResponse updateResponse = await db.UpdateAsync(
+                new UpdateRequest { Collection = Collection, Id = userId, Fields = fields },
+                cancellationToken: ct);
+            return new RecordMatchResultResult.Success(UserFromStruct(updateResponse.Record));
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            return new RecordMatchResultResult.NotFound();
         }
     }
 
