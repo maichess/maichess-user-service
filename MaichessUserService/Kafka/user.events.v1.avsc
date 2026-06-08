@@ -49,12 +49,16 @@
         {
           "type": "record",
           "name": "RatingUpdated",
+          "doc": "Emitted when a user's Glicko-2 rating and/or win/loss/draw tally change. Carries the cumulative W/L/D so a Redis replica can materialise stats without a GetUser RPC; added with defaults so the schema stays backward-compatible.",
           "fields": [
             { "name": "user_id", "type": "string" },
             { "name": "rating", "type": "double" },
             { "name": "rating_deviation", "type": "double" },
             { "name": "volatility", "type": "double" },
-            { "name": "elo", "type": "int" }
+            { "name": "elo", "type": "int" },
+            { "name": "wins", "type": "int", "default": 0 },
+            { "name": "losses", "type": "int", "default": 0 },
+            { "name": "draws", "type": "int", "default": 0 }
           ]
         }
       ]

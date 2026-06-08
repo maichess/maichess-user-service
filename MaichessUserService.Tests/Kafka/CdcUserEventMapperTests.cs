@@ -70,8 +70,8 @@ public sealed class CdcUserEventMapperTests
         // A match result changes rating fields and a stat counter in one row write.
         IReadOnlyList<GenericRecord> events = mapper.Map(Change(
             "u",
-            before: Row(rating: 400, rd: 350, vol: 0.06, elo: 400, wins: 0),
-            after: Row(rating: 412.3, rd: 290.1, vol: 0.0599, elo: 412, wins: 1)));
+            before: Row(rating: 400, rd: 350, vol: 0.06, elo: 400, wins: 0, losses: 2, draws: 1),
+            after: Row(rating: 412.3, rd: 290.1, vol: 0.0599, elo: 412, wins: 1, losses: 2, draws: 1)));
 
         GenericRecord env = Assert.Single(events);
         Assert.Equal("user.RatingUpdated", env["event_type"]);
@@ -81,6 +81,9 @@ public sealed class CdcUserEventMapperTests
         Assert.Equal(290.1, payload["rating_deviation"]);
         Assert.Equal(0.0599, payload["volatility"]);
         Assert.Equal(412, payload["elo"]);
+        Assert.Equal(1, payload["wins"]);
+        Assert.Equal(2, payload["losses"]);
+        Assert.Equal(1, payload["draws"]);
     }
 
     [Theory]
@@ -94,6 +97,23 @@ public sealed class CdcUserEventMapperTests
             "u",
             before: Row(rating: 400, rd: 350, vol: 0.06, elo: 400),
             after: Row(rating: rating, rd: rd, vol: vol, elo: elo)));
+
+        GenericRecord env = Assert.Single(events);
+        Assert.Equal("user.RatingUpdated", env["event_type"]);
+    }
+
+    [Theory]
+    [InlineData(1, 0, 0)] // wins only
+    [InlineData(0, 1, 0)] // losses only
+    [InlineData(0, 0, 1)] // draws only
+    public void StatCounterChange_EachTriggersRatingUpdated(int wins, int losses, int draws)
+    {
+        // A draw between evenly-matched players can leave rating fields unchanged while
+        // a W/L/D counter ticks; the replica still needs the fresh tally.
+        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+            "u",
+            before: Row(wins: 0, losses: 0, draws: 0),
+            after: Row(wins: wins, losses: losses, draws: draws)));
 
         GenericRecord env = Assert.Single(events);
         Assert.Equal("user.RatingUpdated", env["event_type"]);

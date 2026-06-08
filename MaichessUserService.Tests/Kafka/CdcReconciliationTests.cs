@@ -57,6 +57,9 @@ public sealed class CdcReconciliationTests
                 ["rating_deviation"] = 320.2,
                 ["volatility"] = 0.0601,
                 ["elo"] = 389,
+                ["wins"] = 0,
+                ["losses"] = 1,
+                ["draws"] = 0,
             })],
             cdc: mapper.Map(Change("u", before, after)));
     }

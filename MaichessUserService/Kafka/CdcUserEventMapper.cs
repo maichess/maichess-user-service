@@ -17,7 +17,7 @@ namespace MaichessUserService.Kafka;
 //   op c/r (insert / snapshot) -> UserRegistered{user_id, username}
 //   op u   (update):
 //     username or dev_mode changed -> ProfileUpdated{user_id, username, dev_mode}
-//     rating / rating_deviation / volatility / elo changed -> RatingUpdated{...}
+//     rating / rating_deviation / volatility / elo / wins / losses / draws changed -> RatingUpdated{...}
 //   op d   (delete) / unknown      -> nothing
 // Per-operation fidelity needs the full before-image, which requires the users table to
 // run with REPLICA IDENTITY FULL (set in the user-db migration). If a before-image is
@@ -74,7 +74,10 @@ internal sealed class CdcUserEventMapper
         GetDouble(before, "rating") != GetDouble(after, "rating")
         || GetDouble(before, "rating_deviation") != GetDouble(after, "rating_deviation")
         || GetDouble(before, "volatility") != GetDouble(after, "volatility")
-        || GetInt(before, "elo") != GetInt(after, "elo");
+        || GetInt(before, "elo") != GetInt(after, "elo")
+        || GetInt(before, "wins") != GetInt(after, "wins")
+        || GetInt(before, "losses") != GetInt(after, "losses")
+        || GetInt(before, "draws") != GetInt(after, "draws");
 
     // Stable id derived from (aggregate, WAL position, event type) so replaying the same
     // change yields the same event_id — the idempotency key downstream consumers dedupe on.
@@ -198,6 +201,9 @@ internal sealed class CdcUserEventMapper
         payload.Add("rating_deviation", GetDouble(after, "rating_deviation"));
         payload.Add("volatility", GetDouble(after, "volatility"));
         payload.Add("elo", GetInt(after, "elo"));
+        payload.Add("wins", GetInt(after, "wins"));
+        payload.Add("losses", GetInt(after, "losses"));
+        payload.Add("draws", GetInt(after, "draws"));
         return NewEnvelope("user.RatingUpdated", userId, seq, ts, payload);
     }
 
