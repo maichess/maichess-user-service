@@ -705,6 +705,871 @@
           ]
         }
       }
+    },
+    "C:\\Users\\micro\\source\\MaiChess\\services\\maichess-user-service\\MaichessUserService\\Kafka\\CdcUserEventMapper.cs": {
+      "MaichessUserService.Kafka.CdcUserEventMapper": {
+        "MaichessUserService.Kafka.CdcUserEventMapper MaichessUserService.Kafka.CdcUserEventMapper::FromEmbeddedSchema()": {
+          "Lines": {
+            "46": 32
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyList`1<Avro.Generic.GenericRecord> MaichessUserService.Kafka.CdcUserEventMapper::Map(System.String)": {
+          "Lines": {
+            "49": 33,
+            "50": 33,
+            "51": 33,
+            "53": 33,
+            "54": 33,
+            "55": 33,
+            "56": 2,
+            "57": 2,
+            "60": 31,
+            "61": 31,
+            "62": 31,
+            "63": 31,
+            "65": 31,
+            "66": 31,
+            "67": 14,
+            "68": 15,
+            "69": 2,
+            "70": 31,
+            "71": 33
+          },
+          "Branches": [
+            {
+              "Line": 53,
+              "Offset": 38,
+              "EndOffset": 40,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 32
+            },
+            {
+              "Line": 53,
+              "Offset": 54,
+              "EndOffset": 56,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 31
+            },
+            {
+              "Line": 53,
+              "Offset": 38,
+              "EndOffset": 71,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 53,
+              "Offset": 54,
+              "EndOffset": 71,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 2
+            },
+            {
+              "Line": 53,
+              "Offset": 76,
+              "EndOffset": 78,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 2
+            },
+            {
+              "Line": 53,
+              "Offset": 76,
+              "EndOffset": 91,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 31
+            },
+            {
+              "Line": 65,
+              "Offset": 157,
+              "EndOffset": 159,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 18
+            },
+            {
+              "Line": 65,
+              "Offset": 171,
+              "EndOffset": 173,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 17
+            },
+            {
+              "Line": 65,
+              "Offset": 157,
+              "EndOffset": 189,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 14
+            },
+            {
+              "Line": 65,
+              "Offset": 171,
+              "EndOffset": 189,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 14
+            },
+            {
+              "Line": 67,
+              "Offset": 196,
+              "EndOffset": 198,
+              "Path": 0,
+              "Ordinal": 12,
+              "Hits": 13
+            },
+            {
+              "Line": 67,
+              "Offset": 196,
+              "EndOffset": 209,
+              "Path": 1,
+              "Ordinal": 13,
+              "Hits": 1
+            },
+            {
+              "Line": 65,
+              "Offset": 185,
+              "EndOffset": 268,
+              "Path": 1,
+              "Ordinal": 11,
+              "Hits": 15
+            },
+            {
+              "Line": 68,
+              "Offset": 275,
+              "EndOffset": 277,
+              "Path": 0,
+              "Ordinal": 14,
+              "Hits": 14
+            },
+            {
+              "Line": 68,
+              "Offset": 275,
+              "EndOffset": 288,
+              "Path": 1,
+              "Ordinal": 15,
+              "Hits": 1
+            },
+            {
+              "Line": 65,
+              "Offset": 185,
+              "EndOffset": 313,
+              "Path": 0,
+              "Ordinal": 10,
+              "Hits": 2
+            }
+          ]
+        },
+        "System.Boolean MaichessUserService.Kafka.CdcUserEventMapper::RatingDiffers(System.Text.Json.JsonElement,System.Text.Json.JsonElement)": {
+          "Lines": {
+            "74": 12,
+            "75": 12,
+            "76": 12,
+            "77": 12
+          },
+          "Branches": [
+            {
+              "Line": 74,
+              "Offset": 22,
+              "EndOffset": 24,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 7
+            },
+            {
+              "Line": 74,
+              "Offset": 46,
+              "EndOffset": 48,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 6
+            },
+            {
+              "Line": 74,
+              "Offset": 70,
+              "EndOffset": 72,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 5
+            },
+            {
+              "Line": 74,
+              "Offset": 22,
+              "EndOffset": 101,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 7
+            },
+            {
+              "Line": 74,
+              "Offset": 46,
+              "EndOffset": 101,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 7
+            },
+            {
+              "Line": 74,
+              "Offset": 70,
+              "EndOffset": 101,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 7
+            }
+          ]
+        },
+        "System.String MaichessUserService.Kafka.CdcUserEventMapper::DeterministicEventId(System.String,System.Int64,System.String)": {
+          "Lines": {
+            "83": 30,
+            "84": 30,
+            "85": 30,
+            "86": 30
+          },
+          "Branches": []
+        },
+        "System.Text.Json.JsonElement MaichessUserService.Kafka.CdcUserEventMapper::Unwrap(System.Text.Json.JsonElement)": {
+          "Lines": {
+            "93": 33,
+            "94": 33,
+            "95": 33,
+            "96": 33,
+            "97": 33,
+            "98": 33
+          },
+          "Branches": [
+            {
+              "Line": 93,
+              "Offset": 8,
+              "EndOffset": 10,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 32
+            },
+            {
+              "Line": 93,
+              "Offset": 24,
+              "EndOffset": 26,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 93,
+              "Offset": 40,
+              "EndOffset": 42,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 93,
+              "Offset": 8,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 32
+            },
+            {
+              "Line": 93,
+              "Offset": 24,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 32
+            },
+            {
+              "Line": 93,
+              "Offset": 40,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 32
+            },
+            {
+              "Line": 93,
+              "Offset": 50,
+              "EndOffset": 52,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 32
+            },
+            {
+              "Line": 93,
+              "Offset": 50,
+              "EndOffset": 55,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 1
+            }
+          ]
+        },
+        "System.Int64 MaichessUserService.Kafka.CdcUserEventMapper::ReadSequence(System.Text.Json.JsonElement)": {
+          "Lines": {
+            "101": 31,
+            "102": 31,
+            "103": 31,
+            "104": 31,
+            "105": 31,
+            "106": 31
+          },
+          "Branches": [
+            {
+              "Line": 101,
+              "Offset": 14,
+              "EndOffset": 16,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 30
+            },
+            {
+              "Line": 101,
+              "Offset": 24,
+              "EndOffset": 26,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 29
+            },
+            {
+              "Line": 101,
+              "Offset": 40,
+              "EndOffset": 42,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 28
+            },
+            {
+              "Line": 101,
+              "Offset": 14,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 4
+            },
+            {
+              "Line": 101,
+              "Offset": 24,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 4
+            },
+            {
+              "Line": 101,
+              "Offset": 40,
+              "EndOffset": 52,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 4
+            },
+            {
+              "Line": 101,
+              "Offset": 50,
+              "EndOffset": 52,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 4
+            },
+            {
+              "Line": 101,
+              "Offset": 50,
+              "EndOffset": 56,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 27
+            }
+          ]
+        },
+        "System.Int64 MaichessUserService.Kafka.CdcUserEventMapper::ReadOccurredAt(System.Text.Json.JsonElement)": {
+          "Lines": {
+            "109": 31,
+            "110": 31,
+            "111": 31,
+            "112": 31,
+            "113": 31,
+            "114": 31,
+            "115": 31,
+            "116": 31
+          },
+          "Branches": [
+            {
+              "Line": 109,
+              "Offset": 14,
+              "EndOffset": 16,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 27
+            },
+            {
+              "Line": 109,
+              "Offset": 14,
+              "EndOffset": 26,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 4
+            },
+            {
+              "Line": 109,
+              "Offset": 24,
+              "EndOffset": 26,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 4
+            },
+            {
+              "Line": 109,
+              "Offset": 40,
+              "EndOffset": 42,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 4
+            },
+            {
+              "Line": 109,
+              "Offset": 50,
+              "EndOffset": 52,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 3
+            },
+            {
+              "Line": 109,
+              "Offset": 66,
+              "EndOffset": 68,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 2
+            },
+            {
+              "Line": 109,
+              "Offset": 40,
+              "EndOffset": 78,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 3
+            },
+            {
+              "Line": 109,
+              "Offset": 50,
+              "EndOffset": 78,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 3
+            },
+            {
+              "Line": 109,
+              "Offset": 66,
+              "EndOffset": 78,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 3
+            },
+            {
+              "Line": 109,
+              "Offset": 76,
+              "EndOffset": 78,
+              "Path": 0,
+              "Ordinal": 10,
+              "Hits": 3
+            },
+            {
+              "Line": 109,
+              "Offset": 76,
+              "EndOffset": 82,
+              "Path": 1,
+              "Ordinal": 11,
+              "Hits": 1
+            },
+            {
+              "Line": 109,
+              "Offset": 24,
+              "EndOffset": 91,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 27
+            }
+          ]
+        },
+        "System.Nullable`1<System.Text.Json.JsonElement> MaichessUserService.Kafka.CdcUserEventMapper::GetObject(System.Text.Json.JsonElement,System.String)": {
+          "Lines": {
+            "119": 62,
+            "120": 62,
+            "121": 62
+          },
+          "Branches": [
+            {
+              "Line": 119,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 56
+            },
+            {
+              "Line": 119,
+              "Offset": 10,
+              "EndOffset": 22,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 21
+            },
+            {
+              "Line": 119,
+              "Offset": 20,
+              "EndOffset": 22,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 21
+            },
+            {
+              "Line": 119,
+              "Offset": 20,
+              "EndOffset": 33,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 41
+            }
+          ]
+        },
+        "System.String MaichessUserService.Kafka.CdcUserEventMapper::GetString(System.Text.Json.JsonElement,System.String)": {
+          "Lines": {
+            "124": 74,
+            "125": 74,
+            "126": 74
+          },
+          "Branches": [
+            {
+              "Line": 124,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 72
+            },
+            {
+              "Line": 124,
+              "Offset": 10,
+              "EndOffset": 22,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 124,
+              "Offset": 20,
+              "EndOffset": 22,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 2
+            },
+            {
+              "Line": 124,
+              "Offset": 20,
+              "EndOffset": 29,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 72
+            }
+          ]
+        },
+        "System.Boolean MaichessUserService.Kafka.CdcUserEventMapper::GetBool(System.Text.Json.JsonElement,System.String)": {
+          "Lines": {
+            "129": 25
+          },
+          "Branches": [
+            {
+              "Line": 129,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 24
+            },
+            {
+              "Line": 129,
+              "Offset": 10,
+              "EndOffset": 24,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            }
+          ]
+        },
+        "System.Double MaichessUserService.Kafka.CdcUserEventMapper::GetDouble(System.Text.Json.JsonElement,System.String)": {
+          "Lines": {
+            "132": 80,
+            "133": 80,
+            "134": 80
+          },
+          "Branches": [
+            {
+              "Line": 132,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 77
+            },
+            {
+              "Line": 132,
+              "Offset": 10,
+              "EndOffset": 22,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 3
+            },
+            {
+              "Line": 132,
+              "Offset": 20,
+              "EndOffset": 22,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 3
+            },
+            {
+              "Line": 132,
+              "Offset": 20,
+              "EndOffset": 33,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 77
+            }
+          ]
+        },
+        "System.Int32 MaichessUserService.Kafka.CdcUserEventMapper::GetInt(System.Text.Json.JsonElement,System.String)": {
+          "Lines": {
+            "137": 20,
+            "138": 20,
+            "139": 20
+          },
+          "Branches": [
+            {
+              "Line": 137,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 19
+            },
+            {
+              "Line": 137,
+              "Offset": 10,
+              "EndOffset": 22,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            },
+            {
+              "Line": 137,
+              "Offset": 20,
+              "EndOffset": 22,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 137,
+              "Offset": 20,
+              "EndOffset": 25,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 19
+            }
+          ]
+        },
+        "System.String MaichessUserService.Kafka.CdcUserEventMapper::LoadEmbeddedSchema()": {
+          "Lines": {
+            "142": 32,
+            "143": 32,
+            "144": 32,
+            "145": 32,
+            "146": 32,
+            "147": 32,
+            "148": 32,
+            "149": 32
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<Avro.Generic.GenericRecord> MaichessUserService.Kafka.CdcUserEventMapper::MapUpdate(System.Nullable`1<System.Text.Json.JsonElement>,System.Text.Json.JsonElement,System.Int64,System.Int64)": {
+          "Lines": {
+            "152": 14,
+            "153": 14,
+            "154": 14,
+            "155": 14,
+            "157": 14,
+            "159": 14,
+            "160": 14,
+            "161": 7,
+            "162": 7,
+            "163": 7,
+            "165": 14,
+            "166": 10,
+            "167": 10,
+            "168": 10,
+            "170": 14,
+            "171": 14
+          },
+          "Branches": [
+            {
+              "Line": 153,
+              "Offset": 8,
+              "EndOffset": 10,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 12
+            },
+            {
+              "Line": 153,
+              "Offset": 45,
+              "EndOffset": 47,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 9
+            },
+            {
+              "Line": 153,
+              "Offset": 8,
+              "EndOffset": 76,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 5
+            },
+            {
+              "Line": 153,
+              "Offset": 45,
+              "EndOffset": 76,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 5
+            },
+            {
+              "Line": 157,
+              "Offset": 85,
+              "EndOffset": 87,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 12
+            },
+            {
+              "Line": 157,
+              "Offset": 85,
+              "EndOffset": 104,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 2
+            },
+            {
+              "Line": 160,
+              "Offset": 119,
+              "EndOffset": 121,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 7
+            },
+            {
+              "Line": 160,
+              "Offset": 119,
+              "EndOffset": 141,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 14
+            },
+            {
+              "Line": 165,
+              "Offset": 146,
+              "EndOffset": 148,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 10
+            },
+            {
+              "Line": 165,
+              "Offset": 146,
+              "EndOffset": 168,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 14
+            }
+          ]
+        },
+        "Avro.Generic.GenericRecord MaichessUserService.Kafka.CdcUserEventMapper::BuildUserRegistered(System.Text.Json.JsonElement,System.Int64,System.Int64)": {
+          "Lines": {
+            "174": 13,
+            "175": 13,
+            "176": 13,
+            "177": 13,
+            "178": 13,
+            "179": 13,
+            "180": 13
+          },
+          "Branches": []
+        },
+        "Avro.Generic.GenericRecord MaichessUserService.Kafka.CdcUserEventMapper::BuildProfileUpdated(System.Text.Json.JsonElement,System.Int64,System.Int64)": {
+          "Lines": {
+            "183": 7,
+            "184": 7,
+            "185": 7,
+            "186": 7,
+            "187": 7,
+            "188": 7,
+            "189": 7,
+            "190": 7
+          },
+          "Branches": []
+        },
+        "Avro.Generic.GenericRecord MaichessUserService.Kafka.CdcUserEventMapper::BuildRatingUpdated(System.Text.Json.JsonElement,System.Int64,System.Int64)": {
+          "Lines": {
+            "193": 10,
+            "194": 10,
+            "195": 10,
+            "196": 10,
+            "197": 10,
+            "198": 10,
+            "199": 10,
+            "200": 10,
+            "201": 10,
+            "202": 10
+          },
+          "Branches": []
+        },
+        "Avro.Generic.GenericRecord MaichessUserService.Kafka.CdcUserEventMapper::NewEnvelope(System.String,System.String,System.Int64,System.Int64,Avro.Generic.GenericRecord)": {
+          "Lines": {
+            "205": 30,
+            "206": 30,
+            "207": 30,
+            "208": 30,
+            "209": 30,
+            "210": 30,
+            "211": 30,
+            "212": 30,
+            "213": 30,
+            "214": 30,
+            "215": 30,
+            "216": 30,
+            "217": 30
+          },
+          "Branches": []
+        },
+        "System.Void MaichessUserService.Kafka.CdcUserEventMapper::.ctor(System.String)": {
+          "Lines": {
+            "36": 32,
+            "37": 32,
+            "38": 32,
+            "39": 32,
+            "40": 32,
+            "41": 32,
+            "42": 32,
+            "43": 32
+          },
+          "Branches": []
+        }
+      }
     }
   }
 }

@@ -1,23 +1,48 @@
 # Contract Notes
 
-## Event-driven migration (Kafka) — planned
+## `user.events.v1` is produced by CDC, not by this service — shipped (feature-prompts/10)
 
-Per [event-driven-architecture.md](../../maichess-knowledge-base/event-driven-architecture.md),
-this service gains an event side. Event schemas are Avro in
-`maichess-api-contracts/events/v1/`.
+Per [change-data-capture.md](../../maichess-knowledge-base/change-data-capture.md), the
+canonical `user.events.v1` topic is **derived from the Postgres WAL by Debezium**, not emitted
+in-process. The write path (gRPC/REST → `Database.DatabaseClient` → Postgres) stays
+**Postgres-only**; a relay turns the raw `user.cdc.v1` change stream into the curated,
+envelope-wrapped `user.events.v1`.
 
-**Becomes:**
-- Produces `user.events.v1`: `UserRegistered`, `ProfileUpdated`, `RatingUpdated`.
-- Rating updates move from the synchronous `Users.RecordMatchResult` gRPC to **consuming**
-  `MatchResultRecorded` (emitted by Match Manager on match end), then producing `RatingUpdated`.
-  The Glicko-2 computation is unchanged; only its trigger moves to an event.
+- **`Kafka/CdcUserEventMapper.cs`** — the pure, fully-tested transform. CDC change row →
+  `UserEvent` envelope(s): `c`/`r` → `UserRegistered`; `u` → `ProfileUpdated` (username/dev_mode
+  changed) and/or `RatingUpdated` (rating/rd/volatility/elo changed); `d` → nothing.
+- **`Kafka/UserCdcRelay.cs`** — `[ExcludeFromCodeCoverage]` BackgroundService wiring
+  consume(`user.cdc.v1`) → mapper → produce(`user.events.v1`). Gated by `Cdc:Enabled`
+  (off by default; the Helm chart sets it where `kafkaConnect.enabled`).
 
-**Keeps (synchronous gRPC):** `CreateUser` and `GetUser` (called by Auth on the login/register
-path, which stays request/response), plus the REST profile endpoints.
+### No dual write existed to remove
 
-**Eventually retired:** `Users.RecordMatchResult` once Match Manager emits the result event.
+The prompt assumes a "legacy" in-process emitter that this stage replaces. **No such emitter
+was ever implemented** — the event-driven rollout (event-driven-architecture.md, step 5) never
+reached User. So CDC is the *sole* producer of `user.events.v1` from day one; there was nothing
+to delete. The reconciliation test (`Kafka/CdcReconciliationTests.cs`) therefore compares CDC
+output against a **reference** of the intended per-operation emitter, not a running one.
 
-`user-db` remains CRUD master data (Postgres typed columns); see the schema notes below.
+### REPLICA IDENTITY FULL is required (added to the user-db migration)
+
+Faithful per-operation events need the full *before* image to tell a profile change from a
+rating change. Postgres logical replication ships only the primary key in the before-image
+unless the table is `REPLICA IDENTITY FULL`, so
+`Adapters/Postgres/Migrations/UserPostgresMigration.cs` now sets it on `users`. The mapper still
+degrades safely (emits both events for the current state) if a before-image is absent.
+
+### Open gap for Stage 3 (feature-prompts/11) — stats not carried by `user.events`
+
+The Redis user replica in `11` needs `{ wins, losses, draws }`, but no `user.events` payload
+carries them (`RatingUpdated` has only rating fields; `ProfileUpdated` only username/dev_mode).
+CDC change rows *do* see the stat columns, but there is nowhere in the **unchanged** contract to
+put them. Prompt `10` deliberately keeps the schema frozen, so this is **left as a contract gap
+for `11`** to close via the standard api-contracts publish/bump handoff (e.g. add
+`wins`/`losses`/`draws` to `RatingUpdated`, or a full-state snapshot payload — the natural CDC
+shape). Do not silently change the schema here.
+
+**Keeps (synchronous gRPC):** `CreateUser` and `GetUser` (Auth login/register path), plus the
+REST profile endpoints. `Users.RecordMatchResult` is unchanged by this stage.
 
 ---
 

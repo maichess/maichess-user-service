@@ -2,6 +2,18 @@
 
 See `CLAUDE.md` for architecture, contracts, and design notes.
 
+## CDC relay → `user.events.v1` (feature-prompts/10)
+
+`user.events.v1` is curated from the Debezium `user.cdc.v1` change stream rather than emitted
+in-process — the write path stays Postgres-only. See `CONTRACT_NOTES.md` and
+[change-data-capture.md](../../maichess-knowledge-base/change-data-capture.md).
+
+- `Kafka/CdcUserEventMapper.cs` — pure transform (CDC change row → `UserEvent` envelopes),
+  fully unit-tested (`MaichessUserService.Tests/Kafka/`), including a reconciliation harness.
+- `Kafka/UserCdcRelay.cs` — `[ExcludeFromCodeCoverage]` consume→produce BackgroundService.
+- Enable with `Cdc__Enabled=true` (the Helm chart sets it where `kafkaConnect.enabled`);
+  `KAFKA_BOOTSTRAP` / `SCHEMA_REGISTRY_URL` default to the in-cluster services.
+
 ## Mutation Testing (Stryker.NET)
 
 Stryker is installed as a local .NET tool. Configuration lives in

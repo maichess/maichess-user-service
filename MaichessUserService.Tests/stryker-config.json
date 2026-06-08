@@ -19,7 +19,8 @@
       "!**/Program.cs",
       "!**/*.g.cs",
       "!**/*.generated.cs",
-      "!**/Migrations/*.cs"
+      "!**/Migrations/*.cs",
+      "!**/Kafka/UserCdcRelay.cs"
     ],
     "ignore-methods": [
       "*Log*",
