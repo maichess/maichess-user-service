@@ -1,5 +1,26 @@
 # Contract Notes
 
+## Event-driven migration (Kafka) — planned
+
+Per [event-driven-architecture.md](../../maichess-knowledge-base/event-driven-architecture.md),
+this service gains an event side. Event schemas are Avro in
+`maichess-api-contracts/events/v1/`.
+
+**Becomes:**
+- Produces `user.events.v1`: `UserRegistered`, `ProfileUpdated`, `RatingUpdated`.
+- Rating updates move from the synchronous `Users.RecordMatchResult` gRPC to **consuming**
+  `MatchResultRecorded` (emitted by Match Manager on match end), then producing `RatingUpdated`.
+  The Glicko-2 computation is unchanged; only its trigger moves to an event.
+
+**Keeps (synchronous gRPC):** `CreateUser` and `GetUser` (called by Auth on the login/register
+path, which stays request/response), plus the REST profile endpoints.
+
+**Eventually retired:** `Users.RecordMatchResult` once Match Manager emits the result event.
+
+`user-db` remains CRUD master data (Postgres typed columns); see the schema notes below.
+
+---
+
 ## AOT Disabled
 
 `PublishAot=true` has been removed from `MaichessUserService.csproj`.
