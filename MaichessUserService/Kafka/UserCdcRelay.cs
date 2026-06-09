@@ -34,10 +34,7 @@ internal sealed class UserCdcRelay : BackgroundService
             ?? "http://schema-registry:8081";
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-        Task.Run(() => Run(stoppingToken), stoppingToken);
-
-    private void Run(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using IConsumer<string, string> consumer = new ConsumerBuilder<string, string>(
                 new ConsumerConfig
@@ -70,21 +67,27 @@ internal sealed class UserCdcRelay : BackgroundService
                 foreach (GenericRecord envelope in mapper.Map(result.Message.Value))
                 {
                     string key = (string)envelope["aggregate_id"];
-                    producer.Produce(
+                    await producer.ProduceAsync(
                         EventsTopic,
-                        new Message<string, GenericRecord> { Key = key, Value = envelope });
+                        new Message<string, GenericRecord> { Key = key, Value = envelope },
+                        stoppingToken);
                 }
 
-                producer.Flush(stoppingToken);
                 consumer.Commit(result);
             }
         }
         catch (OperationCanceledException)
         {
-            // graceful shutdown
+            logger.LogInformation("User CDC relay is shutting down.");
+        }
+        catch (ProduceException<string, GenericRecord> ex)
+        {
+            logger.LogError(ex, "Failed to produce a curated user event.");
+            throw;
         }
         finally
         {
+            producer.Flush(TimeSpan.FromSeconds(5));
             consumer.Close();
         }
     }
