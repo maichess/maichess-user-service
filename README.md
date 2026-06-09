@@ -2,7 +2,7 @@
 
 See `CLAUDE.md` for architecture, contracts, and design notes.
 
-## CDC relay → `user.events.v1` (feature-prompts/10)
+## CDC relay → `user.events.v1` (maichess-knowledge-base/tasks/implemented/10)
 
 `user.events.v1` is curated from the Debezium `user.cdc.v1` change stream rather than emitted
 in-process — the write path stays Postgres-only. See `CONTRACT_NOTES.md` and

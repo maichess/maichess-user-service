@@ -1,6 +1,6 @@
 # Contract Notes
 
-## `user.events.v1` is produced by CDC, not by this service — shipped (feature-prompts/10)
+## `user.events.v1` is produced by CDC, not by this service — shipped (maichess-knowledge-base/tasks/implemented/10)
 
 Per [change-data-capture.md](../../maichess-knowledge-base/change-data-capture.md), the
 canonical `user.events.v1` topic is **derived from the Postgres WAL by Debezium**, not emitted
@@ -31,7 +31,7 @@ unless the table is `REPLICA IDENTITY FULL`, so
 `Adapters/Postgres/Migrations/UserPostgresMigration.cs` now sets it on `users`. The mapper still
 degrades safely (emits both events for the current state) if a before-image is absent.
 
-### Open gap for Stage 3 (feature-prompts/11) — stats not carried by `user.events`
+### Open gap for Stage 3 (maichess-knowledge-base/tasks/implemented/11) — stats not carried by `user.events`
 
 The Redis user replica in `11` needs `{ wins, losses, draws }`, but no `user.events` payload
 carries them (`RatingUpdated` has only rating fields; `ProfileUpdated` only username/dev_mode).
