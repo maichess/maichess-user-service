@@ -46,6 +46,38 @@ REST profile endpoints. `Users.RecordMatchResult` is unchanged by this stage.
 
 ---
 
+## Rating updates driven by `match.events.v1` `MatchEnded` — in progress (kafka task 08), blocked on a contracts publish
+
+Ratings/W-L-D move from the synchronous `Users.RecordMatchResult` fan-out (already removed from
+match-manager's move loop in kafka 06) to this service **consuming `MatchEnded` from
+`match.events.v1`**, running the existing Glicko-2 update, and letting the rating change flow
+out on `user.events.v1` via the established CDC path. `user.events.v1` stays CDC-only — the
+`MatchResultRecorded` payload in `user_events.proto` is deliberately **not** used (it would make
+match-manager a second producer on the user fact stream) and can be retired in kafka 09.
+
+**Contract change (made in maichess-api-contracts, awaiting `vX.Y.Z` tag/publish):**
+`match_events.proto` — `MatchEnded` gains `white`/`black` (`Player`), `source` (`MatchSource`),
+and `white_bot_elo`/`black_bot_elo` (optional double, engine elo snapshot); `MatchCreated` gains
+the same two optional bot-elo fields so the snapshot is taken once at creation and projected
+into `MatchEnded`. Backward-compatible additions (buf breaking: clean).
+
+**Done here, against the current package (no new proto deps):**
+- `UsersService.ApplyMatchEndedAsync(MatchEndedFact)` — the fully-tested rating trigger:
+  per-human outcome from status+color; both human rows snapshotted before either update;
+  bot opponent = event-carried elo with fixed RD 50 (unknown → 0); bot-vs-bot and external
+  matches record nothing; idempotent per (match id, participant).
+- Idempotency marker: `rated_matches` (new `users` TEXT column, JSON array of recent match ids,
+  newest first, capped at 64) written **in the same row update** as the rating it guards, so the
+  apply+mark pair is atomic and redelivery/replay cannot double-count. Column added in the
+  database-service `UserPostgresMigration` (default `'[]'`); the CDC mapper ignores it.
+
+**Blocked until the publish + version bump:** the `[ExcludeFromCodeCoverage]` Kafka consumer
+shell (`match.events.v1`, Protobuf serde, own consumer group, gated like `Cdc:Enabled`) mapping
+the proto event to `MatchEndedFact`, plus match-manager's producer-side enrichment. The
+`RecordMatchResult` RPC itself stays until kafka 09.
+
+---
+
 ## AOT Disabled
 
 `PublishAot=true` has been removed from `MaichessUserService.csproj`.

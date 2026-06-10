@@ -26,9 +26,9 @@ namespace MaichessUserService.Tests.Features
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Record Match Result", ("  The user service records a finished match outcome for a player by\r\n  incrementi" +
-                "ng the matching win, loss, or draw counter and applying a Glicko-2\r\n  rating upd" +
-                "ate against the supplied opponent."), global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Record Match Result", ("  The user service records a finished match outcome for a player by\n  incrementin" +
+                "g the matching win, loss, or draw counter and applying a Glicko-2\n  rating updat" +
+                "e against the supplied opponent."), global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
