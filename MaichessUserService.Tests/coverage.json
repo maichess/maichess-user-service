@@ -2040,6 +2040,162 @@
           "Branches": []
         }
       }
+    },
+    "/Users/tom/HTWG/semester-5/sw-arch/services/maichess-user-service/MaichessUserService/Kafka/MatchEndedEventMapper.cs": {
+      "MaichessUserService.Kafka.MatchEndedEventMapper": {
+        "MaichessUserService.Rating.MatchEndedFact MaichessUserService.Kafka.MatchEndedEventMapper::Map(Maichess.Events.V1.MatchEvent)": {
+          "Lines": {
+            "14": 12,
+            "15": 12,
+            "16": 1,
+            "17": 1,
+            "20": 11,
+            "21": 11,
+            "22": 11,
+            "23": 11,
+            "24": 11,
+            "25": 11,
+            "26": 11,
+            "27": 12
+          },
+          "Branches": [
+            {
+              "Line": 15,
+              "Offset": 16,
+              "EndOffset": 18,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 15,
+              "Offset": 16,
+              "EndOffset": 23,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 11
+            },
+            {
+              "Line": 21,
+              "Offset": 68,
+              "EndOffset": 70,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 10
+            },
+            {
+              "Line": 21,
+              "Offset": 68,
+              "EndOffset": 81,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            },
+            {
+              "Line": 21,
+              "Offset": 109,
+              "EndOffset": 111,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 10
+            },
+            {
+              "Line": 21,
+              "Offset": 109,
+              "EndOffset": 122,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 1
+            }
+          ]
+        },
+        "MaichessUserService.Rating.MatchEndedStatus MaichessUserService.Kafka.MatchEndedEventMapper::StatusOf(Maichess.Events.V1.MatchStatus)": {
+          "Lines": {
+            "29": 11,
+            "30": 11,
+            "31": 5,
+            "32": 2,
+            "33": 2,
+            "34": 2,
+            "35": 11
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 7,
+              "EndOffset": 26,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 5
+            },
+            {
+              "Line": 29,
+              "Offset": 7,
+              "EndOffset": 30,
+              "Path": 2,
+              "Ordinal": 2,
+              "Hits": 2
+            },
+            {
+              "Line": 29,
+              "Offset": 7,
+              "EndOffset": 34,
+              "Path": 3,
+              "Ordinal": 3,
+              "Hits": 2
+            },
+            {
+              "Line": 29,
+              "Offset": 7,
+              "EndOffset": 38,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 2
+            }
+          ]
+        },
+        "MaichessUserService.Rating.MatchEndedParticipant MaichessUserService.Kafka.MatchEndedEventMapper::ParticipantOf(Maichess.Events.V1.Player,System.Nullable`1<System.Double>)": {
+          "Lines": {
+            "38": 22,
+            "39": 22,
+            "40": 22
+          },
+          "Branches": [
+            {
+              "Line": 38,
+              "Offset": 1,
+              "EndOffset": 3,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 8
+            },
+            {
+              "Line": 38,
+              "Offset": 1,
+              "EndOffset": 12,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 17
+            },
+            {
+              "Line": 38,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 17
+            },
+            {
+              "Line": 38,
+              "Offset": 10,
+              "EndOffset": 15,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 5
+            }
+          ]
+        }
+      }
     }
   }
 }

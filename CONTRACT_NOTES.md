@@ -46,7 +46,7 @@ REST profile endpoints. `Users.RecordMatchResult` is unchanged by this stage.
 
 ---
 
-## Rating updates driven by `match.events.v1` `MatchEnded` — in progress (kafka task 08), blocked on a contracts publish
+## Rating updates driven by `match.events.v1` `MatchEnded` — shipped (kafka task 08)
 
 Ratings/W-L-D move from the synchronous `Users.RecordMatchResult` fan-out (already removed from
 match-manager's move loop in kafka 06) to this service **consuming `MatchEnded` from
@@ -55,13 +55,13 @@ out on `user.events.v1` via the established CDC path. `user.events.v1` stays CDC
 `MatchResultRecorded` payload in `user_events.proto` is deliberately **not** used (it would make
 match-manager a second producer on the user fact stream) and can be retired in kafka 09.
 
-**Contract change (made in maichess-api-contracts, awaiting `vX.Y.Z` tag/publish):**
+**Contract change (published as `Maichess.PlatformProtos` v0.7.0):**
 `match_events.proto` — `MatchEnded` gains `white`/`black` (`Player`), `source` (`MatchSource`),
 and `white_bot_elo`/`black_bot_elo` (optional double, engine elo snapshot); `MatchCreated` gains
 the same two optional bot-elo fields so the snapshot is taken once at creation and projected
 into `MatchEnded`. Backward-compatible additions (buf breaking: clean).
 
-**Done here, against the current package (no new proto deps):**
+**In this service:**
 - `UsersService.ApplyMatchEndedAsync(MatchEndedFact)` — the fully-tested rating trigger:
   per-human outcome from status+color; both human rows snapshotted before either update;
   bot opponent = event-carried elo with fixed RD 50 (unknown → 0); bot-vs-bot and external
@@ -71,10 +71,12 @@ into `MatchEnded`. Backward-compatible additions (buf breaking: clean).
   apply+mark pair is atomic and redelivery/replay cannot double-count. Column added in the
   database-service `UserPostgresMigration` (default `'[]'`); the CDC mapper ignores it.
 
-**Blocked until the publish + version bump:** the `[ExcludeFromCodeCoverage]` Kafka consumer
-shell (`match.events.v1`, Protobuf serde, own consumer group, gated like `Cdc:Enabled`) mapping
-the proto event to `MatchEndedFact`, plus match-manager's producer-side enrichment. The
-`RecordMatchResult` RPC itself stays until kafka 09.
+**Consumer wiring:** `Kafka/MatchEndedConsumer.cs` (`[ExcludeFromCodeCoverage]` shell; group
+`user-service-rating`, Protobuf serde, commit-after-apply, decode failures WARN-logged) maps the
+proto event to `MatchEndedFact` via the pure, fully-tested `Kafka/MatchEndedEventMapper.cs`.
+Gated by `RatingEvents:Enabled` (off by default; Helm sets `RatingEvents__Enabled` where
+`kafka.enabled`). Match-manager stamps the participant/source/bot-elo snapshot onto every
+`MatchEnded`. The `RecordMatchResult` RPC itself stays until kafka 09.
 
 ---
 

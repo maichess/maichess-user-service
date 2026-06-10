@@ -20,7 +20,8 @@
       "!**/*.g.cs",
       "!**/*.generated.cs",
       "!**/Migrations/*.cs",
-      "!**/Kafka/UserCdcRelay.cs"
+      "!**/Kafka/UserCdcRelay.cs",
+      "!**/Kafka/MatchEndedConsumer.cs"
     ],
     "ignore-methods": [
       "*Log*",

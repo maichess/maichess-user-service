@@ -29,6 +29,15 @@ if (builder.Configuration.GetValue<bool>("Cdc:Enabled"))
     builder.Services.AddHostedService<UserCdcRelay>();
 }
 
+// Rating consumer: applies match.events.v1 MatchEnded to player stats/ratings,
+// replacing the retired synchronous RecordMatchResult fan-out (kafka task 08).
+// Off by default; enabled per environment (RatingEvents__Enabled=true) where the
+// Kafka transport runs.
+if (builder.Configuration.GetValue<bool>("RatingEvents:Enabled"))
+{
+    builder.Services.AddHostedService<MatchEndedConsumer>();
+}
+
 string jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Jwt:Key is not configured");
 
