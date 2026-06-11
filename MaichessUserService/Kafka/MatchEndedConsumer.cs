@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Confluent.Kafka;
-using Confluent.Kafka.SyncOverAsync;
-using Confluent.SchemaRegistry.Serdes;
 using Maichess.Events.V1;
 using MaichessUserService.Rating;
 
@@ -50,7 +48,7 @@ internal sealed class MatchEndedConsumer : BackgroundService
                     AutoOffsetReset = AutoOffsetReset.Earliest,
                     EnableAutoCommit = false,
                 })
-            .SetValueDeserializer(new ProtobufDeserializer<MatchEvent>().AsSyncOverAsync())
+            .SetValueDeserializer(ProtobufEventSerdes.Deserializer<MatchEvent>())
             .Build();
 
         consumer.Subscribe(Topic);

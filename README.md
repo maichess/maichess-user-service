@@ -12,7 +12,8 @@ in-process — the write path stays Postgres-only. See `CONTRACT_NOTES.md` and
   fully unit-tested (`MaichessUserService.Tests/Kafka/`), including a reconciliation harness.
 - `Kafka/UserCdcRelay.cs` — `[ExcludeFromCodeCoverage]` consume→produce BackgroundService.
 - Enable with `Cdc__Enabled=true` (the Helm chart sets it where `kafkaConnect.enabled`);
-  `KAFKA_BOOTSTRAP` / `SCHEMA_REGISTRY_URL` default to the in-cluster services.
+  `KAFKA_BOOTSTRAP` defaults to the in-cluster broker. Events are raw Protobuf bytes — Kafka task 09
+  removed the Confluent Schema Registry, so there is no `SCHEMA_REGISTRY_URL`.
 
 ## Mutation Testing (Stryker.NET)
 

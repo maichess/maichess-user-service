@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using Avro.Generic;
 using Confluent.Kafka;
-using Confluent.SchemaRegistry;
-using Confluent.SchemaRegistry.Serdes;
+using Maichess.Events.V1;
 
 namespace MaichessUserService.Kafka;
 
@@ -11,8 +9,10 @@ namespace MaichessUserService.Kafka;
 // User-service's (never-built) event-emit dual write: the write path now touches
 // Postgres only, and the WAL is the single source of the change event.
 //
-// Excluded from coverage: pure Kafka consume/produce plumbing requiring a live broker
-// and Schema Registry. The mapping it delegates to (CdcUserEventMapper) is fully tested.
+// Excluded from coverage: pure Kafka consume/produce plumbing requiring a live broker.
+// The mapping it delegates to (CdcUserEventMapper) is fully tested. The curated
+// user.events.v1 envelopes are written as raw Protobuf bytes (Kafka task 09 removed the
+// Schema Registry).
 [ExcludeFromCodeCoverage]
 internal sealed class UserCdcRelay : BackgroundService
 {
@@ -20,18 +20,13 @@ internal sealed class UserCdcRelay : BackgroundService
     private const string EventsTopic = "user.events.v1";
     private const string ConsumerGroup = "user-cdc-relay";
 
-    private readonly CdcUserEventMapper mapper;
     private readonly ILogger<UserCdcRelay> logger;
     private readonly string bootstrap;
-    private readonly string registryUrl;
 
     public UserCdcRelay(ILogger<UserCdcRelay> logger)
     {
         this.logger = logger;
-        mapper = CdcUserEventMapper.FromEmbeddedSchema();
         bootstrap = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP") ?? "kafka:9092";
-        registryUrl = Environment.GetEnvironmentVariable("SCHEMA_REGISTRY_URL")
-            ?? "http://schema-registry:8081";
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,10 +41,9 @@ internal sealed class UserCdcRelay : BackgroundService
                 })
             .Build();
 
-        using CachedSchemaRegistryClient registry = new(new SchemaRegistryConfig { Url = registryUrl });
-        using IProducer<string, GenericRecord> producer = new ProducerBuilder<string, GenericRecord>(
+        using IProducer<string, UserEvent> producer = new ProducerBuilder<string, UserEvent>(
                 new ProducerConfig { BootstrapServers = bootstrap })
-            .SetValueSerializer(new AvroSerializer<GenericRecord>(registry))
+            .SetValueSerializer(ProtobufEventSerdes.Serializer<UserEvent>())
             .Build();
 
         consumer.Subscribe(CdcTopic);
@@ -64,12 +58,11 @@ internal sealed class UserCdcRelay : BackgroundService
                     continue;
                 }
 
-                foreach (GenericRecord envelope in mapper.Map(result.Message.Value))
+                foreach (UserEvent envelope in CdcUserEventMapper.Map(result.Message.Value))
                 {
-                    string key = (string)envelope["aggregate_id"];
                     await producer.ProduceAsync(
                         EventsTopic,
-                        new Message<string, GenericRecord> { Key = key, Value = envelope },
+                        new Message<string, UserEvent> { Key = envelope.AggregateId, Value = envelope },
                         stoppingToken);
                 }
 
@@ -80,7 +73,7 @@ internal sealed class UserCdcRelay : BackgroundService
         {
             logger.LogInformation("User CDC relay is shutting down.");
         }
-        catch (ProduceException<string, GenericRecord> ex)
+        catch (ProduceException<string, UserEvent> ex)
         {
             logger.LogError(ex, "Failed to produce a curated user event.");
             throw;

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Avro.Generic;
+using Maichess.Events.V1;
 using MaichessUserService.Kafka;
 using Xunit;
 
@@ -11,79 +11,74 @@ namespace MaichessUserService.Tests.Kafka;
 public sealed class CdcUserEventMapperTests
 {
     private const string Id = "11111111-1111-1111-1111-111111111111";
-
-    private readonly CdcUserEventMapper mapper = CdcUserEventMapper.FromEmbeddedSchema();
-
     [Theory]
     [InlineData("c")]
     [InlineData("r")]
     public void Insert_MapsToUserRegistered(string op)
     {
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(op, before: null, after: Row(username: "alice")));
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(op, before: null, after: Row(username: "alice")));
 
-        GenericRecord env = Assert.Single(events);
-        Assert.Equal("user.UserRegistered", env["event_type"]);
-        Assert.Equal(Id, env["aggregate_id"]);
-        Assert.Equal("user-cdc-relay", env["producer"]);
-        Assert.Equal(string.Empty, env["correlation_id"]);
-        Assert.Equal(string.Empty, env["causation_id"]);
-        Assert.Equal(42L, env["sequence"]);
-        Assert.Equal(1700L, env["occurred_at"]);
+        UserEvent env = Assert.Single(events);
+        Assert.Equal("user.UserRegistered", env.EventType);
+        Assert.Equal(Id, env.AggregateId);
+        Assert.Equal("user-cdc-relay", env.Producer);
+        Assert.Equal(string.Empty, env.CorrelationId);
+        Assert.Equal(string.Empty, env.CausationId);
+        Assert.Equal(42L, env.Sequence);
+        Assert.Equal(1700L, env.OccurredAt);
 
-        var payload = (GenericRecord)env["payload"];
-        Assert.Equal(Id, payload["user_id"]);
-        Assert.Equal("alice", payload["username"]);
+        Assert.Equal(Id, env.UserRegistered.UserId);
+        Assert.Equal("alice", env.UserRegistered.Username);
     }
 
     [Fact]
     public void UpdateUsername_MapsToProfileUpdatedOnly()
     {
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(username: "alice"),
             after: Row(username: "bob")));
 
-        GenericRecord env = Assert.Single(events);
-        Assert.Equal("user.ProfileUpdated", env["event_type"]);
-        var payload = (GenericRecord)env["payload"];
-        Assert.Equal(Id, payload["user_id"]);
-        Assert.Equal("bob", payload["username"]);
-        Assert.Equal(false, payload["dev_mode"]);
+        UserEvent env = Assert.Single(events);
+        Assert.Equal("user.ProfileUpdated", env.EventType);
+        Assert.Equal(Id, env.ProfileUpdated.UserId);
+        Assert.Equal("bob", env.ProfileUpdated.Username);
+        Assert.False(env.ProfileUpdated.DevMode);
     }
 
     [Fact]
     public void UpdateDevMode_MapsToProfileUpdatedOnly()
     {
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(devMode: false),
             after: Row(devMode: true)));
 
-        GenericRecord env = Assert.Single(events);
-        Assert.Equal("user.ProfileUpdated", env["event_type"]);
-        Assert.Equal(true, ((GenericRecord)env["payload"])["dev_mode"]);
+        UserEvent env = Assert.Single(events);
+        Assert.Equal("user.ProfileUpdated", env.EventType);
+        Assert.True(env.ProfileUpdated.DevMode);
     }
 
     [Fact]
     public void RecordMatchResult_MapsToRatingUpdatedOnly()
     {
         // A match result changes rating fields and a stat counter in one row write.
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(rating: 400, rd: 350, vol: 0.06, elo: 400, wins: 0, losses: 2, draws: 1),
             after: Row(rating: 412.3, rd: 290.1, vol: 0.0599, elo: 412, wins: 1, losses: 2, draws: 1)));
 
-        GenericRecord env = Assert.Single(events);
-        Assert.Equal("user.RatingUpdated", env["event_type"]);
-        var payload = (GenericRecord)env["payload"];
-        Assert.Equal(Id, payload["user_id"]);
-        Assert.Equal(412.3, payload["rating"]);
-        Assert.Equal(290.1, payload["rating_deviation"]);
-        Assert.Equal(0.0599, payload["volatility"]);
-        Assert.Equal(412, payload["elo"]);
-        Assert.Equal(1, payload["wins"]);
-        Assert.Equal(2, payload["losses"]);
-        Assert.Equal(1, payload["draws"]);
+        UserEvent env = Assert.Single(events);
+        Assert.Equal("user.RatingUpdated", env.EventType);
+        RatingUpdated payload = env.RatingUpdated;
+        Assert.Equal(Id, payload.UserId);
+        Assert.Equal(412.3, payload.Rating);
+        Assert.Equal(290.1, payload.RatingDeviation);
+        Assert.Equal(0.0599, payload.Volatility);
+        Assert.Equal(412, payload.Elo);
+        Assert.Equal(1, payload.Wins);
+        Assert.Equal(2, payload.Losses);
+        Assert.Equal(1, payload.Draws);
     }
 
     [Theory]
@@ -93,13 +88,12 @@ public sealed class CdcUserEventMapperTests
     [InlineData(400.0, 350.0, 0.06, 401)] // elo only
     public void RatingFieldChange_EachTriggersRatingUpdated(double rating, double rd, double vol, int elo)
     {
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(rating: 400, rd: 350, vol: 0.06, elo: 400),
             after: Row(rating: rating, rd: rd, vol: vol, elo: elo)));
 
-        GenericRecord env = Assert.Single(events);
-        Assert.Equal("user.RatingUpdated", env["event_type"]);
+        Assert.Equal("user.RatingUpdated", Assert.Single(events).EventType);
     }
 
     [Theory]
@@ -110,26 +104,25 @@ public sealed class CdcUserEventMapperTests
     {
         // A draw between evenly-matched players can leave rating fields unchanged while
         // a W/L/D counter ticks; the replica still needs the fresh tally.
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(wins: 0, losses: 0, draws: 0),
             after: Row(wins: wins, losses: losses, draws: draws)));
 
-        GenericRecord env = Assert.Single(events);
-        Assert.Equal("user.RatingUpdated", env["event_type"]);
+        Assert.Equal("user.RatingUpdated", Assert.Single(events).EventType);
     }
 
     [Fact]
     public void UpdateProfileAndRating_MapsToBothEvents()
     {
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(username: "alice", rating: 400),
             after: Row(username: "bob", rating: 450)));
 
         Assert.Equal(2, events.Count);
-        Assert.Equal("user.ProfileUpdated", events[0]["event_type"]);
-        Assert.Equal("user.RatingUpdated", events[1]["event_type"]);
+        Assert.Equal("user.ProfileUpdated", events[0].EventType);
+        Assert.Equal("user.RatingUpdated", events[1].EventType);
     }
 
     [Fact]
@@ -140,60 +133,59 @@ public sealed class CdcUserEventMapperTests
         Dictionary<string, object?> after = Row();
         after["password_hash"] = "rotated";
 
-        Assert.Empty(mapper.Map(Change("u", before, after)));
+        Assert.Empty(CdcUserEventMapper.Map(Change("u", before, after)));
     }
 
     [Fact]
     public void UpdateWithoutBeforeImage_DegradesToBothEvents()
     {
         // Default REPLICA IDENTITY: Postgres ships no before-image. Emit current state.
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change("u", before: null, after: Row()));
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change("u", before: null, after: Row()));
 
         Assert.Equal(2, events.Count);
-        Assert.Equal("user.ProfileUpdated", events[0]["event_type"]);
-        Assert.Equal("user.RatingUpdated", events[1]["event_type"]);
+        Assert.Equal("user.ProfileUpdated", events[0].EventType);
+        Assert.Equal("user.RatingUpdated", events[1].EventType);
     }
 
     [Fact]
     public void Delete_MapsToNothing()
     {
-        Assert.Empty(mapper.Map(Change("d", before: Row(), after: null)));
+        Assert.Empty(CdcUserEventMapper.Map(Change("d", before: Row(), after: null)));
     }
 
     [Fact]
     public void UnknownOp_MapsToNothing()
     {
-        Assert.Empty(mapper.Map(Change("t", before: null, after: null)));
+        Assert.Empty(CdcUserEventMapper.Map(Change("t", before: null, after: null)));
     }
 
     [Fact]
     public void MissingOp_MapsToNothing()
     {
-        Assert.Empty(mapper.Map("""{ "after": { "id": "x" } }"""));
+        Assert.Empty(CdcUserEventMapper.Map("""{ "after": { "id": "x" } }"""));
     }
 
     [Fact]
     public void InsertWithoutAfter_MapsToNothing()
     {
-        Assert.Empty(mapper.Map(Change("c", before: null, after: null)));
+        Assert.Empty(CdcUserEventMapper.Map(Change("c", before: null, after: null)));
     }
 
     [Fact]
     public void UpdateWithoutAfter_MapsToNothing()
     {
-        Assert.Empty(mapper.Map(Change("u", before: Row(), after: null)));
+        Assert.Empty(CdcUserEventMapper.Map(Change("u", before: Row(), after: null)));
     }
 
     [Fact]
     public void MissingFields_DefaultGracefully()
     {
         // after carries only the id (no username/dev_mode) — readers fall back to defaults.
-        IReadOnlyList<GenericRecord> events = mapper.Map($$"""
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map($$"""
             { "op": "c", "after": { "id": "{{Id}}" }, "source": { "lsn": 42 }, "ts_ms": 1700 }
             """);
 
-        var payload = (GenericRecord)Assert.Single(events)["payload"];
-        Assert.Equal(string.Empty, payload["username"]);
+        Assert.Equal(string.Empty, Assert.Single(events).UserRegistered.Username);
     }
 
     [Fact]
@@ -203,8 +195,8 @@ public sealed class CdcUserEventMapperTests
         string change = Change("c", before: null, after: Row(username: "alice"));
         string wrapped = $$"""{ "schema": { "type": "struct" }, "payload": {{change}} }""";
 
-        GenericRecord env = Assert.Single(mapper.Map(wrapped));
-        Assert.Equal("user.UserRegistered", env["event_type"]);
+        UserEvent env = Assert.Single(CdcUserEventMapper.Map(wrapped));
+        Assert.Equal("user.UserRegistered", env.EventType);
     }
 
     [Fact]
@@ -214,7 +206,7 @@ public sealed class CdcUserEventMapperTests
             { "op": "c", "before": null, "after": {{JsonSerializer.Serialize(Row())}}, "source": {}, "ts_ms": 1700 }
             """;
 
-        Assert.Equal(0L, Assert.Single(mapper.Map(change))["sequence"]);
+        Assert.Equal(0L, Assert.Single(CdcUserEventMapper.Map(change)).Sequence);
     }
 
     [Fact]
@@ -224,7 +216,7 @@ public sealed class CdcUserEventMapperTests
             { "op": "c", "after": {{JsonSerializer.Serialize(Row())}}, "ts_ms": 1700 }
             """;
 
-        Assert.Equal(0L, Assert.Single(mapper.Map(change))["sequence"]);
+        Assert.Equal(0L, Assert.Single(CdcUserEventMapper.Map(change)).Sequence);
     }
 
     [Fact]
@@ -234,7 +226,7 @@ public sealed class CdcUserEventMapperTests
             { "op": "c", "after": {{JsonSerializer.Serialize(Row())}}, "source": { "lsn": 42, "ts_ms": 555 } }
             """;
 
-        Assert.Equal(555L, Assert.Single(mapper.Map(change))["occurred_at"]);
+        Assert.Equal(555L, Assert.Single(CdcUserEventMapper.Map(change)).OccurredAt);
     }
 
     [Fact]
@@ -244,13 +236,13 @@ public sealed class CdcUserEventMapperTests
             { "op": "c", "after": {{JsonSerializer.Serialize(Row())}}, "source": { "lsn": 42 } }
             """;
 
-        Assert.Equal(0L, Assert.Single(mapper.Map(change))["occurred_at"]);
+        Assert.Equal(0L, Assert.Single(CdcUserEventMapper.Map(change)).OccurredAt);
     }
 
     [Fact]
     public void NonObjectRoot_MapsToNothing()
     {
-        Assert.Empty(mapper.Map("[]"));
+        Assert.Empty(CdcUserEventMapper.Map("[]"));
     }
 
     [Fact]
@@ -258,14 +250,13 @@ public sealed class CdcUserEventMapperTests
     {
         // Degraded path (no before-image) + an after carrying only the id: the rating
         // event reads missing numeric columns as zero rather than throwing.
-        IReadOnlyList<GenericRecord> events = mapper.Map($$"""
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map($$"""
             { "op": "u", "before": null, "after": { "id": "{{Id}}" }, "source": { "lsn": 1 }, "ts_ms": 1 }
             """);
 
-        var rating = (GenericRecord)events[1]["payload"];
-        Assert.Equal("user.RatingUpdated", events[1]["event_type"]);
-        Assert.Equal(0d, rating["rating"]);
-        Assert.Equal(0, rating["elo"]);
+        Assert.Equal("user.RatingUpdated", events[1].EventType);
+        Assert.Equal(0d, events[1].RatingUpdated.Rating);
+        Assert.Equal(0, events[1].RatingUpdated.Elo);
     }
 
     [Fact]
@@ -275,9 +266,9 @@ public sealed class CdcUserEventMapperTests
             { "op": "c", "after": {{JsonSerializer.Serialize(Row())}}, "source": 5 }
             """;
 
-        GenericRecord env = Assert.Single(mapper.Map(change));
-        Assert.Equal(0L, env["sequence"]);
-        Assert.Equal(0L, env["occurred_at"]);
+        UserEvent env = Assert.Single(CdcUserEventMapper.Map(change));
+        Assert.Equal(0L, env.Sequence);
+        Assert.Equal(0L, env.OccurredAt);
     }
 
     [Fact]
@@ -287,9 +278,9 @@ public sealed class CdcUserEventMapperTests
             { "op": "c", "after": {{JsonSerializer.Serialize(Row())}}, "source": { "lsn": "x", "ts_ms": "y" } }
             """;
 
-        GenericRecord env = Assert.Single(mapper.Map(change));
-        Assert.Equal(0L, env["sequence"]);
-        Assert.Equal(0L, env["occurred_at"]);
+        UserEvent env = Assert.Single(CdcUserEventMapper.Map(change));
+        Assert.Equal(0L, env.Sequence);
+        Assert.Equal(0L, env.OccurredAt);
     }
 
     [Fact]
@@ -297,8 +288,8 @@ public sealed class CdcUserEventMapperTests
     {
         string change = Change("c", before: null, after: Row());
 
-        string first = (string)Assert.Single(mapper.Map(change))["event_id"];
-        string second = (string)Assert.Single(mapper.Map(change))["event_id"];
+        string first = Assert.Single(CdcUserEventMapper.Map(change)).EventId;
+        string second = Assert.Single(CdcUserEventMapper.Map(change)).EventId;
 
         Assert.Equal(first, second);
         Assert.True(Guid.TryParse(first, out _));
@@ -307,12 +298,12 @@ public sealed class CdcUserEventMapperTests
     [Fact]
     public void EventId_DiffersPerEventTypeOnSameChange()
     {
-        IReadOnlyList<GenericRecord> events = mapper.Map(Change(
+        IReadOnlyList<UserEvent> events = CdcUserEventMapper.Map(Change(
             "u",
             before: Row(username: "alice", rating: 400),
             after: Row(username: "bob", rating: 450)));
 
-        Assert.NotEqual((string)events[0]["event_id"], (string)events[1]["event_id"]);
+        Assert.NotEqual(events[0].EventId, events[1].EventId);
     }
 
     private static Dictionary<string, object?> Row(

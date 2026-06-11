@@ -1,9 +1,7 @@
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using Avro;
-using Avro.Generic;
+using Maichess.Events.V1;
 
 namespace MaichessUserService.Kafka;
 
@@ -23,29 +21,11 @@ namespace MaichessUserService.Kafka;
 // run with REPLICA IDENTITY FULL (set in the user-db migration). If a before-image is
 // absent (default replica identity), the mapper degrades safely to emitting both the
 // profile and rating events for the current state.
-internal sealed class CdcUserEventMapper
+internal static class CdcUserEventMapper
 {
     private const string Producer = "user-cdc-relay";
-    private const string SchemaResourceSuffix = "user.events.v1.avsc";
 
-    private readonly RecordSchema envelopeSchema;
-    private readonly RecordSchema userRegisteredSchema;
-    private readonly RecordSchema profileUpdatedSchema;
-    private readonly RecordSchema ratingUpdatedSchema;
-
-    public CdcUserEventMapper(string userEventsAvsc)
-    {
-        envelopeSchema = (RecordSchema)Schema.Parse(userEventsAvsc);
-        var union = (UnionSchema)envelopeSchema.Fields.Single(f => f.Name == "payload").Schema;
-        userRegisteredSchema = (RecordSchema)union.Schemas.Single(s => s.Name == "UserRegistered");
-        profileUpdatedSchema = (RecordSchema)union.Schemas.Single(s => s.Name == "ProfileUpdated");
-        ratingUpdatedSchema = (RecordSchema)union.Schemas.Single(s => s.Name == "RatingUpdated");
-    }
-
-    // Loads the schema embedded in this assembly, mirroring KafkaMatchmakingNotifier.
-    public static CdcUserEventMapper FromEmbeddedSchema() => new(LoadEmbeddedSchema());
-
-    public IReadOnlyList<GenericRecord> Map(string cdcValueJson)
+    public static IReadOnlyList<UserEvent> Map(string cdcValueJson)
     {
         using var doc = JsonDocument.Parse(cdcValueJson);
         JsonElement change = Unwrap(doc.RootElement);
@@ -141,17 +121,7 @@ internal sealed class CdcUserEventMapper
             ? el.GetInt32()
             : 0;
 
-    private static string LoadEmbeddedSchema()
-    {
-        Assembly asm = typeof(CdcUserEventMapper).Assembly;
-        string name = asm.GetManifestResourceNames()
-            .Single(n => n.EndsWith(SchemaResourceSuffix, StringComparison.Ordinal));
-        using Stream stream = asm.GetManifestResourceStream(name)!;
-        using StreamReader reader = new(stream);
-        return reader.ReadToEnd();
-    }
-
-    private List<GenericRecord> MapUpdate(JsonElement? before, JsonElement after, long seq, long ts)
+    private static List<UserEvent> MapUpdate(JsonElement? before, JsonElement after, long seq, long ts)
     {
         bool profileChanged = before is not { } b
             || GetString(b, "username") != GetString(after, "username")
@@ -159,7 +129,7 @@ internal sealed class CdcUserEventMapper
 
         bool ratingChanged = before is not { } b2 || RatingDiffers(b2, after);
 
-        var events = new List<GenericRecord>(2);
+        var events = new List<UserEvent>(2);
         if (profileChanged)
         {
             events.Add(BuildProfileUpdated(after, seq, ts));
@@ -173,52 +143,58 @@ internal sealed class CdcUserEventMapper
         return events;
     }
 
-    private GenericRecord BuildUserRegistered(JsonElement after, long seq, long ts)
+    private static UserEvent BuildUserRegistered(JsonElement after, long seq, long ts)
     {
         string userId = GetString(after, "id");
-        GenericRecord payload = new(userRegisteredSchema);
-        payload.Add("user_id", userId);
-        payload.Add("username", GetString(after, "username"));
-        return NewEnvelope("user.UserRegistered", userId, seq, ts, payload);
-    }
-
-    private GenericRecord BuildProfileUpdated(JsonElement after, long seq, long ts)
-    {
-        string userId = GetString(after, "id");
-        GenericRecord payload = new(profileUpdatedSchema);
-        payload.Add("user_id", userId);
-        payload.Add("username", GetString(after, "username"));
-        payload.Add("dev_mode", GetBool(after, "dev_mode"));
-        return NewEnvelope("user.ProfileUpdated", userId, seq, ts, payload);
-    }
-
-    private GenericRecord BuildRatingUpdated(JsonElement after, long seq, long ts)
-    {
-        string userId = GetString(after, "id");
-        GenericRecord payload = new(ratingUpdatedSchema);
-        payload.Add("user_id", userId);
-        payload.Add("rating", GetDouble(after, "rating"));
-        payload.Add("rating_deviation", GetDouble(after, "rating_deviation"));
-        payload.Add("volatility", GetDouble(after, "volatility"));
-        payload.Add("elo", GetInt(after, "elo"));
-        payload.Add("wins", GetInt(after, "wins"));
-        payload.Add("losses", GetInt(after, "losses"));
-        payload.Add("draws", GetInt(after, "draws"));
-        return NewEnvelope("user.RatingUpdated", userId, seq, ts, payload);
-    }
-
-    private GenericRecord NewEnvelope(string eventType, string aggregateId, long seq, long ts, GenericRecord payload)
-    {
-        GenericRecord envelope = new(envelopeSchema);
-        envelope.Add("event_id", DeterministicEventId(aggregateId, seq, eventType));
-        envelope.Add("event_type", eventType);
-        envelope.Add("aggregate_id", aggregateId);
-        envelope.Add("sequence", seq);
-        envelope.Add("occurred_at", ts);
-        envelope.Add("correlation_id", string.Empty);
-        envelope.Add("causation_id", string.Empty);
-        envelope.Add("producer", Producer);
-        envelope.Add("payload", payload);
+        UserEvent envelope = NewEnvelope("user.UserRegistered", userId, seq, ts);
+        envelope.UserRegistered = new UserRegistered
+        {
+            UserId = userId,
+            Username = GetString(after, "username"),
+        };
         return envelope;
     }
+
+    private static UserEvent BuildProfileUpdated(JsonElement after, long seq, long ts)
+    {
+        string userId = GetString(after, "id");
+        UserEvent envelope = NewEnvelope("user.ProfileUpdated", userId, seq, ts);
+        envelope.ProfileUpdated = new ProfileUpdated
+        {
+            UserId = userId,
+            Username = GetString(after, "username"),
+            DevMode = GetBool(after, "dev_mode"),
+        };
+        return envelope;
+    }
+
+    private static UserEvent BuildRatingUpdated(JsonElement after, long seq, long ts)
+    {
+        string userId = GetString(after, "id");
+        UserEvent envelope = NewEnvelope("user.RatingUpdated", userId, seq, ts);
+        envelope.RatingUpdated = new RatingUpdated
+        {
+            UserId = userId,
+            Rating = GetDouble(after, "rating"),
+            RatingDeviation = GetDouble(after, "rating_deviation"),
+            Volatility = GetDouble(after, "volatility"),
+            Elo = GetInt(after, "elo"),
+            Wins = GetInt(after, "wins"),
+            Losses = GetInt(after, "losses"),
+            Draws = GetInt(after, "draws"),
+        };
+        return envelope;
+    }
+
+    private static UserEvent NewEnvelope(string eventType, string aggregateId, long seq, long ts) => new()
+    {
+        EventId = DeterministicEventId(aggregateId, seq, eventType),
+        EventType = eventType,
+        AggregateId = aggregateId,
+        Sequence = seq,
+        OccurredAt = ts,
+        CorrelationId = string.Empty,
+        CausationId = string.Empty,
+        Producer = Producer,
+    };
 }

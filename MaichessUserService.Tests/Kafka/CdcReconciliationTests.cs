@@ -1,6 +1,5 @@
 using System.Text.Json;
-using Avro;
-using Avro.Generic;
+using Maichess.Events.V1;
 using MaichessUserService.Kafka;
 using Xunit;
 
@@ -14,17 +13,17 @@ namespace MaichessUserService.Tests.Kafka;
 public sealed class CdcReconciliationTests
 {
     private const string Id = "22222222-2222-2222-2222-222222222222";
-
-    private readonly CdcUserEventMapper mapper = CdcUserEventMapper.FromEmbeddedSchema();
-
     [Fact]
     public void CreateUser_CdcMatchesLegacyEmitter()
     {
         var after = Row(username: "carol");
 
-        AssertReconciles(
-            legacy: [Expected("user.UserRegistered", new() { ["user_id"] = Id, ["username"] = "carol" })],
-            cdc: mapper.Map(Change("c", before: null, after: after)));
+        IReadOnlyList<UserEvent> cdc = CdcUserEventMapper.Map(Change("c", before: null, after: after));
+
+        UserEvent ev = Assert.Single(cdc);
+        Assert.Equal("user.UserRegistered", ev.EventType);
+        Assert.Equal(Id, ev.UserRegistered.UserId);
+        Assert.Equal("carol", ev.UserRegistered.Username);
     }
 
     [Fact]
@@ -33,14 +32,13 @@ public sealed class CdcReconciliationTests
         var before = Row(username: "carol", devMode: false);
         var after = Row(username: "carol", devMode: true);
 
-        AssertReconciles(
-            legacy: [Expected("user.ProfileUpdated", new()
-            {
-                ["user_id"] = Id,
-                ["username"] = "carol",
-                ["dev_mode"] = true,
-            })],
-            cdc: mapper.Map(Change("u", before, after)));
+        IReadOnlyList<UserEvent> cdc = CdcUserEventMapper.Map(Change("u", before, after));
+
+        UserEvent ev = Assert.Single(cdc);
+        Assert.Equal("user.ProfileUpdated", ev.EventType);
+        Assert.Equal(Id, ev.ProfileUpdated.UserId);
+        Assert.Equal("carol", ev.ProfileUpdated.Username);
+        Assert.True(ev.ProfileUpdated.DevMode);
     }
 
     [Fact]
@@ -49,41 +47,19 @@ public sealed class CdcReconciliationTests
         var before = Row(rating: 400, rd: 350, vol: 0.06, elo: 400, wins: 0);
         var after = Row(rating: 388.5, rd: 320.2, vol: 0.0601, elo: 389, losses: 1);
 
-        AssertReconciles(
-            legacy: [Expected("user.RatingUpdated", new()
-            {
-                ["user_id"] = Id,
-                ["rating"] = 388.5,
-                ["rating_deviation"] = 320.2,
-                ["volatility"] = 0.0601,
-                ["elo"] = 389,
-                ["wins"] = 0,
-                ["losses"] = 1,
-                ["draws"] = 0,
-            })],
-            cdc: mapper.Map(Change("u", before, after)));
-    }
+        IReadOnlyList<UserEvent> cdc = CdcUserEventMapper.Map(Change("u", before, after));
 
-    private static void AssertReconciles(
-        IReadOnlyList<(string Type, Dictionary<string, object?> Fields)> legacy,
-        IReadOnlyList<GenericRecord> cdc)
-    {
-        Assert.Equal(legacy.Count, cdc.Count);
-        for (int i = 0; i < legacy.Count; i++)
-        {
-            Assert.Equal(legacy[i].Type, (string)cdc[i]["event_type"]);
-            Assert.Equal(legacy[i].Fields, PayloadFields(cdc[i]));
-        }
-    }
-
-    private static (string Type, Dictionary<string, object?> Fields) Expected(
-        string type, Dictionary<string, object?> fields) => (type, fields);
-
-    private static Dictionary<string, object?> PayloadFields(GenericRecord envelope)
-    {
-        var payload = (GenericRecord)envelope["payload"];
-        var schema = (RecordSchema)payload.Schema;
-        return schema.Fields.ToDictionary(f => f.Name, f => (object?)payload[f.Name]);
+        UserEvent ev = Assert.Single(cdc);
+        Assert.Equal("user.RatingUpdated", ev.EventType);
+        RatingUpdated r = ev.RatingUpdated;
+        Assert.Equal(Id, r.UserId);
+        Assert.Equal(388.5, r.Rating);
+        Assert.Equal(320.2, r.RatingDeviation);
+        Assert.Equal(0.0601, r.Volatility);
+        Assert.Equal(389, r.Elo);
+        Assert.Equal(0, r.Wins);
+        Assert.Equal(1, r.Losses);
+        Assert.Equal(0, r.Draws);
     }
 
     private static Dictionary<string, object?> Row(
